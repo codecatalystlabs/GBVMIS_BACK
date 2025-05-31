@@ -1,0 +1,968 @@
+basePath: /
+definitions:
+  models.Accused:
+    properties:
+      abdomen_back:
+        type: string
+      age_estimation_note:
+        type: string
+      ano_genital:
+        type: string
+      apparent_age:
+        type: string
+      case_number:
+        type: string
+      chest_breast:
+        type: string
+      created_at:
+        type: string
+      date_of_incident:
+        type: string
+      general_condition:
+        type: string
+      head_neck:
+        type: string
+      hiv_test_results:
+        type: string
+      id:
+        type: integer
+      mental_status:
+        type: string
+      name:
+        type: string
+      occupation:
+        type: string
+      police_unit:
+        type: string
+      residence:
+        type: string
+      sex:
+        type: string
+      telephone:
+        type: string
+      updated_at:
+        type: string
+      upper_lower_limbs:
+        type: string
+      work_place:
+        type: string
+    type: object
+  models.MedicalExamination:
+    properties:
+      abdomen_back:
+        type: string
+      accused_id:
+        type: integer
+      ano_genital:
+        type: string
+      chest_breast:
+        type: string
+      created_at:
+        type: string
+      date:
+        type: string
+      findings:
+        type: string
+      general_condition:
+        type: string
+      head_neck:
+        type: string
+      id:
+        type: integer
+      mental_status:
+        type: string
+      pictogram_back:
+        type: string
+      pictogram_female:
+        type: string
+      pictogram_front:
+        type: string
+      pictogram_male:
+        type: string
+      place:
+        type: string
+      updated_at:
+        type: string
+      upper_lower_limbs:
+        type: string
+      victim_id:
+        type: integer
+    type: object
+  models.PoliceOfficer:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      force_number:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password_hash:
+        type: string
+      rank:
+        type: string
+      station_id:
+        type: integer
+      telephone:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  models.PoliceStation:
+    properties:
+      contact:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Victim:
+    properties:
+      abdomen_back:
+        type: string
+      age_estimation_note:
+        type: string
+      apparent_age:
+        type: string
+      case_number:
+        type: string
+      chest_breast:
+        type: string
+      created_at:
+        type: string
+      date_of_incident:
+        type: string
+      general_condition:
+        type: string
+      head_neck:
+        type: string
+      id:
+        type: integer
+      incident_history:
+        type: string
+      marital_status:
+        type: string
+      mental_status:
+        type: string
+      name:
+        type: string
+      narrator:
+        type: string
+      occupation:
+        type: string
+      police_unit:
+        type: string
+      relationship:
+        type: string
+      residence:
+        type: string
+      sex:
+        type: string
+      updated_at:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is the API documentation for the GBV Management Information System
+  title: GBVMIS API
+  version: "1.0"
+paths:
+  /accused:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all registered accused persons
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Accused'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all accused
+      tags:
+      - accused
+    post:
+      consumes:
+      - application/json
+      description: Register a new accused person in the system
+      parameters:
+      - description: Accused information
+        in: body
+        name: accused
+        required: true
+        schema:
+          $ref: '#/definitions/models.Accused'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Accused'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new accused
+      tags:
+      - accused
+  /accused/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an accused record
+      parameters:
+      - description: Accused ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete accused
+      tags:
+      - accused
+    get:
+      consumes:
+      - application/json
+      description: Get accused details by their ID
+      parameters:
+      - description: Accused ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Accused'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get accused by ID
+      tags:
+      - accused
+    put:
+      consumes:
+      - application/json
+      description: Update accused information
+      parameters:
+      - description: Accused ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated accused information
+        in: body
+        name: accused
+        required: true
+        schema:
+          $ref: '#/definitions/models.Accused'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Accused'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update accused
+      tags:
+      - accused
+  /examinations:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all medical examinations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.MedicalExamination'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all examinations
+      tags:
+      - examinations
+    post:
+      consumes:
+      - application/json
+      description: Register a new medical examination record
+      parameters:
+      - description: Medical examination information
+        in: body
+        name: examination
+        required: true
+        schema:
+          $ref: '#/definitions/models.MedicalExamination'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.MedicalExamination'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new medical examination
+      tags:
+      - examinations
+  /examinations/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a medical examination record
+      parameters:
+      - description: Examination ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete examination
+      tags:
+      - examinations
+    get:
+      consumes:
+      - application/json
+      description: Get medical examination details by ID
+      parameters:
+      - description: Examination ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MedicalExamination'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get examination by ID
+      tags:
+      - examinations
+    put:
+      consumes:
+      - application/json
+      description: Update medical examination information
+      parameters:
+      - description: Examination ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated examination information
+        in: body
+        name: examination
+        required: true
+        schema:
+          $ref: '#/definitions/models.MedicalExamination'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MedicalExamination'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update examination
+      tags:
+      - examinations
+  /officers:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all registered police officers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.PoliceOfficer'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all officers
+      tags:
+      - officers
+    post:
+      consumes:
+      - application/json
+      description: Register a new police officer in the system
+      parameters:
+      - description: Police officer information
+        in: body
+        name: officer
+        required: true
+        schema:
+          $ref: '#/definitions/models.PoliceOfficer'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.PoliceOfficer'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new police officer
+      tags:
+      - officers
+  /officers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a police officer record
+      parameters:
+      - description: Officer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete officer
+      tags:
+      - officers
+    get:
+      consumes:
+      - application/json
+      description: Get police officer details by their ID
+      parameters:
+      - description: Officer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PoliceOfficer'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get officer by ID
+      tags:
+      - officers
+    put:
+      consumes:
+      - application/json
+      description: Update police officer information
+      parameters:
+      - description: Officer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated officer information
+        in: body
+        name: officer
+        required: true
+        schema:
+          $ref: '#/definitions/models.PoliceOfficer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PoliceOfficer'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update officer
+      tags:
+      - officers
+  /stations:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all police stations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.PoliceStation'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all stations
+      tags:
+      - stations
+    post:
+      consumes:
+      - application/json
+      description: Register a new police station in the system
+      parameters:
+      - description: Police station information
+        in: body
+        name: station
+        required: true
+        schema:
+          $ref: '#/definitions/models.PoliceStation'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.PoliceStation'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new police station
+      tags:
+      - stations
+  /stations/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a police station record
+      parameters:
+      - description: Station ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete station
+      tags:
+      - stations
+    get:
+      consumes:
+      - application/json
+      description: Get police station details by ID
+      parameters:
+      - description: Station ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PoliceStation'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get station by ID
+      tags:
+      - stations
+    put:
+      consumes:
+      - application/json
+      description: Update police station information
+      parameters:
+      - description: Station ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated station information
+        in: body
+        name: station
+        required: true
+        schema:
+          $ref: '#/definitions/models.PoliceStation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PoliceStation'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update station
+      tags:
+      - stations
+  /victims:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all registered victims
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Victim'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all victims
+      tags:
+      - victims
+    post:
+      consumes:
+      - application/json
+      description: Register a new victim in the system
+      parameters:
+      - description: Victim information
+        in: body
+        name: victim
+        required: true
+        schema:
+          $ref: '#/definitions/models.Victim'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Victim'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new victim
+      tags:
+      - victims
+  /victims/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a victim record
+      parameters:
+      - description: Victim ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete victim
+      tags:
+      - victims
+    get:
+      consumes:
+      - application/json
+      description: Get victim details by their ID
+      parameters:
+      - description: Victim ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Victim'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get victim by ID
+      tags:
+      - victims
+    put:
+      consumes:
+      - application/json
+      description: Update victim information
+      parameters:
+      - description: Victim ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated victim information
+        in: body
+        name: victim
+        required: true
+        schema:
+          $ref: '#/definitions/models.Victim'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Victim'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update victim
+      tags:
+      - victims
+swagger: "2.0"

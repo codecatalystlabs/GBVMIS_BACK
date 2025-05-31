@@ -12,6 +12,16 @@ type ExaminationHandler struct {
 	Service service.MedicalExaminationService
 }
 
+// @Summary Register a new medical examination
+// @Description Register a new medical examination record
+// @Tags examinations
+// @Accept json
+// @Produce json
+// @Param examination body models.MedicalExamination true "Medical examination information"
+// @Success 201 {object} models.MedicalExamination
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /examinations [post]
 func (h *ExaminationHandler) RegisterExamination(c *fiber.Ctx) error {
 	var exam models.MedicalExamination
 	if err := c.BodyParser(&exam); err != nil {
@@ -23,6 +33,16 @@ func (h *ExaminationHandler) RegisterExamination(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(exam)
 }
 
+// @Summary Get examination by ID
+// @Description Get medical examination details by ID
+// @Tags examinations
+// @Accept json
+// @Produce json
+// @Param id path int true "Examination ID"
+// @Success 200 {object} models.MedicalExamination
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /examinations/{id} [get]
 func (h *ExaminationHandler) GetExaminationByID(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -35,6 +55,14 @@ func (h *ExaminationHandler) GetExaminationByID(c *fiber.Ctx) error {
 	return c.JSON(exam)
 }
 
+// @Summary List all examinations
+// @Description Get a list of all medical examinations
+// @Tags examinations
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.MedicalExamination
+// @Failure 500 {object} map[string]string
+// @Router /examinations [get]
 func (h *ExaminationHandler) ListExaminations(c *fiber.Ctx) error {
 	exams, err := h.Service.ListExaminations()
 	if err != nil {
@@ -43,6 +71,17 @@ func (h *ExaminationHandler) ListExaminations(c *fiber.Ctx) error {
 	return c.JSON(exams)
 }
 
+// @Summary Update examination
+// @Description Update medical examination information
+// @Tags examinations
+// @Accept json
+// @Produce json
+// @Param id path int true "Examination ID"
+// @Param examination body models.MedicalExamination true "Updated examination information"
+// @Success 200 {object} models.MedicalExamination
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /examinations/{id} [put]
 func (h *ExaminationHandler) UpdateExamination(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -59,6 +98,16 @@ func (h *ExaminationHandler) UpdateExamination(c *fiber.Ctx) error {
 	return c.JSON(exam)
 }
 
+// @Summary Delete examination
+// @Description Delete a medical examination record
+// @Tags examinations
+// @Accept json
+// @Produce json
+// @Param id path int true "Examination ID"
+// @Success 204 "No Content"
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /examinations/{id} [delete]
 func (h *ExaminationHandler) DeleteExamination(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {

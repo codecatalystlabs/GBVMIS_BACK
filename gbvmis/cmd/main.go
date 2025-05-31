@@ -9,11 +9,20 @@ import (
 	"gbvmis/internal/service"
 	"log"
 
+	_ "gbvmis/docs" // This will be generated
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
+// @title GBVMIS API
+// @version 1.0
+// @description This is the API documentation for the GBV Management Information System
+// @host localhost:8080
+// @BasePath /
+// @schemes http https
 func main() {
 	cfg := config.LoadConfig()
 	db, err := gorm.Open(postgres.Open(cfg.GetDSN()), &gorm.Config{})
@@ -52,6 +61,12 @@ func main() {
 	stationHandler := &handlers.PoliceStationHandler{Service: stationService}
 
 	app := fiber.New()
+
+	// Swagger documentation
+	app.Get("/swagger/*", swagger.New(swagger.Config{
+		URL:         "/swagger/doc.json",
+		DeepLinking: true,
+	}))
 
 	// Register all API routes with real handlers
 	api.RegisterRoutesWithHandlers(app, victimHandler, accusedHandler, examHandler, officerHandler, stationHandler)
