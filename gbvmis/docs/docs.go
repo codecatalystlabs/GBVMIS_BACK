@@ -9,48 +9,23 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "email": "fiber@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/accused": {
-            "get": {
-                "description": "Get a list of all registered accused persons",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "accused"
-                ],
-                "summary": "List all accused",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Accused"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
+        "/case": {
             "post": {
-                "description": "Register a new accused person in the system",
+                "description": "Creates a new case entry in the system and returns the created record.",
                 "consumes": [
                     "application/json"
                 ],
@@ -58,51 +33,45 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accused"
+                    "Cases"
                 ],
-                "summary": "Register a new accused",
+                "summary": "Create a new case record",
                 "parameters": [
                     {
-                        "description": "Accused information",
-                        "name": "accused",
+                        "description": "Case data to create",
+                        "name": "case",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Accused"
+                            "$ref": "#/definitions/models.Case"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Successfully created case record",
                         "schema": {
-                            "$ref": "#/definitions/models.Accused"
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad request due to invalid input",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when creating case",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             }
         },
-        "/accused/{id}": {
+        "/case/{id}": {
             "get": {
-                "description": "Get accused details by their ID",
+                "description": "Fetches a case record based on the provided ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -110,13 +79,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accused"
+                    "Cases"
                 ],
-                "summary": "Get accused by ID",
+                "summary": "Retrieve a single case record by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Accused ID",
+                        "type": "string",
+                        "description": "Case ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -124,33 +93,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Case retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.Accused"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Case not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when retrieving case",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             },
             "put": {
-                "description": "Update accused information",
+                "description": "Updates the details of a case record based on the provided ID and request body.",
                 "consumes": [
                     "application/json"
                 ],
@@ -158,56 +121,56 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accused"
+                    "Cases"
                 ],
-                "summary": "Update accused",
+                "summary": "Update an existing case record by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Accused ID",
+                        "type": "string",
+                        "description": "Case ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Updated accused information",
-                        "name": "accused",
+                        "description": "Case data to update",
+                        "name": "case",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Accused"
+                            "$ref": "#/definitions/controllers.UpdateCasePayload"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Case updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.Accused"
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input or empty request body",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Case not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when updating case",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             },
             "delete": {
-                "description": "Delete an accused record",
+                "description": "Deletes a Case record based on the provided ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -215,38 +178,529 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accused"
+                    "Cases"
                 ],
-                "summary": "Delete accused",
+                "summary": "Delete a Case record by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Accused ID",
+                        "type": "string",
+                        "description": "Case ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
+                    "200": {
+                        "description": "Case deleted successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Case not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when deleting case",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/cases": {
+            "get": {
+                "description": "Fetches all case records with pagination support.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cases"
+                ],
+                "summary": "Retrieve a paginated list of cases",
+                "responses": {
+                    "200": {
+                        "description": "Cases retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve cases",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/cases/search": {
+            "get": {
+                "description": "Retrieves a paginated list of cases based on search criteria.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cases"
+                ],
+                "summary": "Search for Cases with pagination",
+                "responses": {
+                    "200": {
+                        "description": "Cases retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve Cases",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/charge": {
+            "post": {
+                "description": "Creates a new charge entry in the system and returns the created record.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Charges"
+                ],
+                "summary": "Create a new charge record",
+                "parameters": [
+                    {
+                        "description": "Charge data to create",
+                        "name": "charge",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Charge"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created charge record",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request due to invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when creating charge",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/charge/{id}": {
+            "get": {
+                "description": "Fetches a charge record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Charges"
+                ],
+                "summary": "Retrieve a single charge record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Charge ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Charge retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Charge not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when retrieving charge",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates the details of a charge record based on the provided ID and request body.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Charges"
+                ],
+                "summary": "Update an existing charge record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Charge ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Charge data to update",
+                        "name": "charge",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UpdateChargePayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Charge updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input or empty request body",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Charge not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when updating charge",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a charge record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Charges"
+                ],
+                "summary": "Delete a charge record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Charge ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Charge deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Charge not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when deleting charge",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/charges": {
+            "get": {
+                "description": "Fetches all charge records with pagination support.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Charges"
+                ],
+                "summary": "Retrieve a paginated list of charges",
+                "responses": {
+                    "200": {
+                        "description": "Charges retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve charges",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/charges/search": {
+            "get": {
+                "description": "Retrieves a paginated list of charges based on search criteria.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Charges"
+                ],
+                "summary": "Search for charges with pagination",
+                "responses": {
+                    "200": {
+                        "description": "Charges retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve charges",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/examination": {
+            "post": {
+                "description": "Creates a new examination entry in the system and returns the created record.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Examinations"
+                ],
+                "summary": "Create a new examination record",
+                "parameters": [
+                    {
+                        "description": "Examination data to create",
+                        "name": "examination",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Examination"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created examination record",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request due to invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when creating examination",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/examination/{id}": {
+            "get": {
+                "description": "Fetches a examination record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Examinations"
+                ],
+                "summary": "Retrieve a single examination record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Examination ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Examination retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Examination not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when retrieving examination",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates the details of a examination record based on the provided ID and request body.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Examinations"
+                ],
+                "summary": "Update an existing examination record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Examination ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Examination data to update",
+                        "name": "examination",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UpdateExaminationPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Examination updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input or empty request body",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Examination not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when updating examination",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a examination record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Examinations"
+                ],
+                "summary": "Delete a examination record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Examination ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Examination deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Examination not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when deleting examination",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
@@ -254,7 +708,7 @@ const docTemplate = `{
         },
         "/examinations": {
             "get": {
-                "description": "Get a list of all medical examinations",
+                "description": "Fetches all examination records with pagination support.",
                 "consumes": [
                     "application/json"
                 ],
@@ -262,32 +716,28 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "examinations"
+                    "Examinations"
                 ],
-                "summary": "List all examinations",
+                "summary": "Retrieve a paginated list of examinations",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Examinations retrieved successfully",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.MedicalExamination"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Failed to retrieve examinations",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "Register a new medical examination record",
+            }
+        },
+        "/examinations/search": {
+            "get": {
+                "description": "Retrieves a paginated list of examinations based on search criteria.",
                 "consumes": [
                     "application/json"
                 ],
@@ -295,51 +745,132 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "examinations"
+                    "Examinations"
                 ],
-                "summary": "Register a new medical examination",
+                "summary": "Search for examinations with pagination",
+                "responses": {
+                    "200": {
+                        "description": "Examinations retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve examinations",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/health-facilities": {
+            "get": {
+                "description": "Fetches all healthFacility records with pagination support.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health facilities"
+                ],
+                "summary": "Retrieve a paginated list of health facilities",
+                "responses": {
+                    "200": {
+                        "description": "Health facilities retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve health facilities",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/health-facilities/search": {
+            "get": {
+                "description": "Retrieves a paginated list of health facilities based on search criteria.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health facilities"
+                ],
+                "summary": "Search for health facilities with pagination",
+                "responses": {
+                    "200": {
+                        "description": "Health facilities retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve HealthFacilities",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/health-facility": {
+            "post": {
+                "description": "Creates a new health facility entry in the system and returns the created record.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health facilities"
+                ],
+                "summary": "Create a new health facility record",
                 "parameters": [
                     {
-                        "description": "Medical examination information",
-                        "name": "examination",
+                        "description": "HealthFacility data to create",
+                        "name": "HealthFacility",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.MedicalExamination"
+                            "$ref": "#/definitions/models.HealthFacility"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Successfully created health facility record",
                         "schema": {
-                            "$ref": "#/definitions/models.MedicalExamination"
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad request due to invalid input",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when creating health facility",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             }
         },
-        "/examinations/{id}": {
+        "/health-facility/{id}": {
             "get": {
-                "description": "Get medical examination details by ID",
+                "description": "Fetches a HealthFacility record based on the provided ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -347,13 +878,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "examinations"
+                    "Health facilities"
                 ],
-                "summary": "Get examination by ID",
+                "summary": "Retrieve a single HealthFacility record by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Examination ID",
+                        "type": "string",
+                        "description": "HealthFacility ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -361,33 +892,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Health facility retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.MedicalExamination"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Health facility not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when retrieving Health facility",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             },
             "put": {
-                "description": "Update medical examination information",
+                "description": "Updates the details of a HealthFacility record based on the provided ID and request body.",
                 "consumes": [
                     "application/json"
                 ],
@@ -395,56 +920,56 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "examinations"
+                    "Health facilities"
                 ],
-                "summary": "Update examination",
+                "summary": "Update an existing Health facility record by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Examination ID",
+                        "type": "string",
+                        "description": "Health facility ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Updated examination information",
-                        "name": "examination",
+                        "description": "Health facility data to update",
+                        "name": "HealthFacility",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.MedicalExamination"
+                            "$ref": "#/definitions/controllers.UpdateHealthFacilityPayload"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Health facility updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.MedicalExamination"
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input or empty request body",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "HealthFacility not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when updating Health facility",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             },
             "delete": {
-                "description": "Delete a medical examination record",
+                "description": "Deletes a Health facility record based on the provided ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -452,46 +977,43 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "examinations"
+                    "Health facilities"
                 ],
-                "summary": "Delete examination",
+                "summary": "Delete a HealthFacility record by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Examination ID",
+                        "type": "string",
+                        "description": "HealthFacility ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
+                    "200": {
+                        "description": "Health facility deleted successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "HealthFacility not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when deleting HealthFacility",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             }
         },
-        "/officers": {
-            "get": {
-                "description": "Get a list of all registered police officers",
+        "/health-practitioner": {
+            "post": {
+                "description": "Creates a new health practitioner entry in the system and returns the created record.",
                 "consumes": [
                     "application/json"
                 ],
@@ -499,32 +1021,87 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "officers"
+                    "Health practitioners"
                 ],
-                "summary": "List all officers",
-                "responses": {
-                    "200": {
-                        "description": "OK",
+                "summary": "Create a new health practitioner record",
+                "parameters": [
+                    {
+                        "description": "Health practitioner data to create",
+                        "name": "practitioner",
+                        "in": "body",
+                        "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.PoliceOfficer"
-                            }
+                            "$ref": "#/definitions/models.HealthPractitioner"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created health practitioner record",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request due to invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when creating health practitioner",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/health-practitioner/{id}": {
+            "get": {
+                "description": "Fetches a HealthPractitioner record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health practitioners"
+                ],
+                "summary": "Retrieve a single HealthPractitioner record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "HealthPractitioner ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Health Practitioner retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Health Practitioner not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when retrieving Health Practitioner",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             },
-            "post": {
-                "description": "Register a new police officer in the system",
+            "put": {
+                "description": "Updates the details of a HealthPractitioner record based on the provided ID and request body.",
                 "consumes": [
                     "application/json"
                 ],
@@ -532,13 +1109,172 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "officers"
+                    "Health practitioners"
                 ],
-                "summary": "Register a new police officer",
+                "summary": "Update an existing Health practitioner record by ID",
                 "parameters": [
                     {
-                        "description": "Police officer information",
-                        "name": "officer",
+                        "type": "string",
+                        "description": "Health practitioner ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Health practitioner data to update",
+                        "name": "HealthPractitioner",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UpdateHealthPractitionerPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Health practitioner updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input or empty request body",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "HealthPractitioner not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when updating Health practitioner",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a Health Practitioner record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health practitioners"
+                ],
+                "summary": "Delete a HealthPractitioner record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "HealthPractitioner ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Health Practitioner deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "HealthPractitioner not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when deleting HealthPractitioner",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/health-practitioners": {
+            "get": {
+                "description": "Fetches all healthPractitioner records with pagination support.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health practitioners"
+                ],
+                "summary": "Retrieve a paginated list of health practitioners",
+                "responses": {
+                    "200": {
+                        "description": "Health practitioners retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve health practitioners",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/health-practitioners/search": {
+            "get": {
+                "description": "Retrieves a paginated list of health practitioners based on search criteria.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health practitioners"
+                ],
+                "summary": "Search for health practitioners with pagination",
+                "responses": {
+                    "200": {
+                        "description": "Health practitioners retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve HealthPractitioners",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/police-officer": {
+            "post": {
+                "description": "Creates a new police Officer entry in the system and returns the created record.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Police Officers"
+                ],
+                "summary": "Create a new police Officer record",
+                "parameters": [
+                    {
+                        "description": "PoliceOfficer data to create",
+                        "name": "PoliceOfficer",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -548,35 +1284,29 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Successfully created police Officer record",
                         "schema": {
-                            "$ref": "#/definitions/models.PoliceOfficer"
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad request due to invalid input",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when creating police Officer",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             }
         },
-        "/officers/{id}": {
+        "/police-officer/{id}": {
             "get": {
-                "description": "Get police officer details by their ID",
+                "description": "Fetches a policeOfficer record based on the provided ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -584,13 +1314,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "officers"
+                    "Police Officers"
                 ],
-                "summary": "Get officer by ID",
+                "summary": "Retrieve a single policeOfficer record by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Officer ID",
+                        "type": "string",
+                        "description": "PoliceOfficer ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -598,33 +1328,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "PoliceOfficer retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.PoliceOfficer"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "PoliceOfficer not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when retrieving PoliceOfficer",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             },
             "put": {
-                "description": "Update police officer information",
+                "description": "Updates the details of a policeOfficer record based on the provided ID and request body.",
                 "consumes": [
                     "application/json"
                 ],
@@ -632,56 +1356,56 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "officers"
+                    "Police Officers"
                 ],
-                "summary": "Update officer",
+                "summary": "Update an existing policeOfficer record by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Officer ID",
+                        "type": "string",
+                        "description": "PoliceOfficer ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Updated officer information",
-                        "name": "officer",
+                        "description": "PoliceOfficer data to update",
+                        "name": "policeOfficer",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.PoliceOfficer"
+                            "$ref": "#/definitions/controllers.UpdatePoliceOfficerPayload"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "PoliceOfficer updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.PoliceOfficer"
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input or empty request body",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "PoliceOfficer not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when updating policeOfficer",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             },
             "delete": {
-                "description": "Delete a police officer record",
+                "description": "Deletes a PoliceOfficer record based on the provided ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -689,46 +1413,43 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "officers"
+                    "Police Officers"
                 ],
-                "summary": "Delete officer",
+                "summary": "Delete a PoliceOfficer record by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Officer ID",
+                        "type": "string",
+                        "description": "PoliceOfficer ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
+                    "200": {
+                        "description": "PoliceOfficer deleted successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "PoliceOfficer not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when deleting policeOfficer",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             }
         },
-        "/stations": {
+        "/police-officers": {
             "get": {
-                "description": "Get a list of all police stations",
+                "description": "Fetches all policeOfficer records with pagination support.",
                 "consumes": [
                     "application/json"
                 ],
@@ -736,32 +1457,28 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "stations"
+                    "Police Officers"
                 ],
-                "summary": "List all stations",
+                "summary": "Retrieve a paginated list of policeOfficers",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "policeOfficers retrieved successfully",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.PoliceStation"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Failed to retrieve policeOfficers",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "Register a new police station in the system",
+            }
+        },
+        "/police-officers/search": {
+            "get": {
+                "description": "Retrieves a paginated list of policeOfficers based on search criteria.",
                 "consumes": [
                     "application/json"
                 ],
@@ -769,51 +1486,74 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "stations"
+                    "Police Officers"
                 ],
-                "summary": "Register a new police station",
+                "summary": "Search for policeOfficers with pagination",
+                "responses": {
+                    "200": {
+                        "description": "PoliceOfficers retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve PoliceOfficers",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/police-post": {
+            "post": {
+                "description": "Creates a new police post entry in the system and returns the created record.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Police Posts"
+                ],
+                "summary": "Create a new police post record",
                 "parameters": [
                     {
-                        "description": "Police station information",
-                        "name": "station",
+                        "description": "PolicePost data to create",
+                        "name": "Policepost",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.PoliceStation"
+                            "$ref": "#/definitions/models.PolicePost"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Successfully created police post record",
                         "schema": {
-                            "$ref": "#/definitions/models.PoliceStation"
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad request due to invalid input",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when creating police post",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             }
         },
-        "/stations/{id}": {
+        "/police-post/{id}": {
             "get": {
-                "description": "Get police station details by ID",
+                "description": "Fetches a policePost record based on the provided ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -821,13 +1561,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "stations"
+                    "Police Posts"
                 ],
-                "summary": "Get station by ID",
+                "summary": "Retrieve a single policePost record by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Station ID",
+                        "type": "string",
+                        "description": "PolicePost ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -835,33 +1575,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "PolicePost retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.PoliceStation"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "PolicePost not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when retrieving PolicePost",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             },
             "put": {
-                "description": "Update police station information",
+                "description": "Updates the details of a policePost record based on the provided ID and request body.",
                 "consumes": [
                     "application/json"
                 ],
@@ -869,56 +1603,56 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "stations"
+                    "Police Posts"
                 ],
-                "summary": "Update station",
+                "summary": "Update an existing policePost record by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Station ID",
+                        "type": "string",
+                        "description": "PolicePost ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Updated station information",
-                        "name": "station",
+                        "description": "PolicePost data to update",
+                        "name": "policePost",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.PoliceStation"
+                            "$ref": "#/definitions/controllers.UpdatePolicePostPayload"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "PolicePost updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.PoliceStation"
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input or empty request body",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "PolicePost not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when updating policePost",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             },
             "delete": {
-                "description": "Delete a police station record",
+                "description": "Deletes a PolicePost record based on the provided ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -926,38 +1660,643 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "stations"
+                    "Police Posts"
                 ],
-                "summary": "Delete station",
+                "summary": "Delete a PolicePost record by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Station ID",
+                        "type": "string",
+                        "description": "PolicePost ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
+                    "200": {
+                        "description": "PolicePost deleted successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "PolicePost not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when deleting policePost",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/police-posts": {
+            "get": {
+                "description": "Fetches all policePost records with pagination support.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Police Posts"
+                ],
+                "summary": "Retrieve a paginated list of policePosts",
+                "responses": {
+                    "200": {
+                        "description": "policePosts retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve policePosts",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/police-posts/search": {
+            "get": {
+                "description": "Retrieves a paginated list of policePosts based on search criteria.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Police Posts"
+                ],
+                "summary": "Search for policePosts with pagination",
+                "responses": {
+                    "200": {
+                        "description": "PolicePosts retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve PolicePosts",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/suspect": {
+            "post": {
+                "description": "Creates a new suspect entry with photo and fingerprints files.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Suspects"
+                ],
+                "summary": "Create a new suspect record with photo and fingerprints upload",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "First Name",
+                        "name": "first_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Middle Name",
+                        "name": "middle_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Last Name",
+                        "name": "last_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "DOB in YYYY-MM-DD format",
+                        "name": "dob",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gender",
+                        "name": "gender",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Phone Number",
+                        "name": "phone_number",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "NIN",
+                        "name": "nin",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Nationality",
+                        "name": "nationality",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Address",
+                        "name": "address",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Occupation",
+                        "name": "occupation",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Created By",
+                        "name": "created_by",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Updated By",
+                        "name": "updated_by",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Photo file upload",
+                        "name": "photo",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Fingerprints file upload",
+                        "name": "fingerprints",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created suspect record",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request due to invalid input or file error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when creating suspect",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/suspect/{id}": {
+            "get": {
+                "description": "Fetches a suspect record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Suspects"
+                ],
+                "summary": "Retrieve a single suspect record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Suspect ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Suspect retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Suspect not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when retrieving suspect",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Partially updates fields of an existing suspect, including photo and fingerprints.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Suspects"
+                ],
+                "summary": "Update a suspect record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Suspect ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "First Name",
+                        "name": "first_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Middle Name",
+                        "name": "middle_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Last Name",
+                        "name": "last_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "DOB in YYYY-MM-DD format",
+                        "name": "dob",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gender",
+                        "name": "gender",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Phone Number",
+                        "name": "phone_number",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "NIN",
+                        "name": "nin",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Nationality",
+                        "name": "nationality",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Address",
+                        "name": "address",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Occupation",
+                        "name": "occupation",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Updated By",
+                        "name": "updated_by",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Photo file upload",
+                        "name": "photo",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Fingerprints file upload",
+                        "name": "fingerprints",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Suspect updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request due to invalid input or file error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Suspect not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when updating suspect",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a suspect record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Suspects"
+                ],
+                "summary": "Delete a suspect record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Suspect ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Suspect deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Suspect not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when deleting suspect",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/suspects": {
+            "get": {
+                "description": "Fetches all suspect records with pagination support.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Suspects"
+                ],
+                "summary": "Retrieve a paginated list of suspects",
+                "responses": {
+                    "200": {
+                        "description": "Suspects retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve suspects",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/suspects/search": {
+            "get": {
+                "description": "Retrieves a paginated list of suspects based on search criteria.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Suspects"
+                ],
+                "summary": "Search for suspects with pagination",
+                "responses": {
+                    "200": {
+                        "description": "Suspects retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve suspects",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/victim/{id}": {
+            "get": {
+                "description": "Fetches a victim record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Victims"
+                ],
+                "summary": "Retrieve a single victim record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Victim ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Victim retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Victim not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when retrieving victim",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates the details of a victim record based on the provided ID and request body.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Victims"
+                ],
+                "summary": "Update an existing victim record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Victim ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Victim data to update",
+                        "name": "victim",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UpdateVictimPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Victim updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input or empty request body",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Victim not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when updating victim",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a victim record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Victims"
+                ],
+                "summary": "Delete a victim record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Victim ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Victim deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Victim not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when deleting victim",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
@@ -965,7 +2304,7 @@ const docTemplate = `{
         },
         "/victims": {
             "get": {
-                "description": "Get a list of all registered victims",
+                "description": "Fetches all victim records with pagination support.",
                 "consumes": [
                     "application/json"
                 ],
@@ -973,32 +2312,26 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "victims"
+                    "Victims"
                 ],
-                "summary": "List all victims",
+                "summary": "Retrieve a paginated list of victims",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Victims retrieved successfully",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Victim"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Failed to retrieve victims",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             },
             "post": {
-                "description": "Register a new victim in the system",
+                "description": "Creates a new victim entry in the system and returns the created record.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1006,12 +2339,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "victims"
+                    "Victims"
                 ],
-                "summary": "Register a new victim",
+                "summary": "Create a new victim record",
                 "parameters": [
                     {
-                        "description": "Victim information",
+                        "description": "Victim data to create",
                         "name": "victim",
                         "in": "body",
                         "required": true,
@@ -1022,35 +2355,29 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Successfully created victim record",
                         "schema": {
-                            "$ref": "#/definitions/models.Victim"
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad request due to invalid input",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Server error when creating victim",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
             }
         },
-        "/victims/{id}": {
+        "/victims/search": {
             "get": {
-                "description": "Get victim details by their ID",
+                "description": "Retrieves a paginated list of victims based on search criteria.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1058,143 +2385,20 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "victims"
+                    "Victims"
                 ],
-                "summary": "Get victim by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Victim ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "Search for victims with pagination",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Victims retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.Victim"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Update victim information",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "victims"
-                ],
-                "summary": "Update victim",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Victim ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated victim information",
-                        "name": "victim",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Victim"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Victim"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Failed to retrieve victims",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete a victim record",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "victims"
-                ],
-                "summary": "Delete victim",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Victim ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
@@ -1202,132 +2406,90 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.Accused": {
+        "controllers.UpdateCasePayload": {
             "type": "object",
             "properties": {
-                "abdomen_back": {
+                "date_opened": {
                     "type": "string"
                 },
-                "age_estimation_note": {
+                "description": {
                     "type": "string"
                 },
-                "ano_genital": {
-                    "type": "string"
-                },
-                "apparent_age": {
-                    "type": "string"
-                },
-                "case_number": {
-                    "type": "string"
-                },
-                "chest_breast": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "date_of_incident": {
-                    "type": "string"
-                },
-                "general_condition": {
-                    "type": "string"
-                },
-                "head_neck": {
-                    "type": "string"
-                },
-                "hiv_test_results": {
-                    "type": "string"
-                },
-                "id": {
+                "officer_id": {
                     "type": "integer"
                 },
-                "mental_status": {
+                "police_post_id": {
+                    "type": "integer"
+                },
+                "status": {
                     "type": "string"
                 },
-                "name": {
-                    "type": "string"
+                "suspect_id": {
+                    "type": "integer"
                 },
-                "occupation": {
-                    "type": "string"
-                },
-                "police_unit": {
-                    "type": "string"
-                },
-                "residence": {
-                    "type": "string"
-                },
-                "sex": {
-                    "type": "string"
-                },
-                "telephone": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "upper_lower_limbs": {
-                    "type": "string"
-                },
-                "work_place": {
+                "title": {
                     "type": "string"
                 }
             }
         },
-        "models.MedicalExamination": {
+        "controllers.UpdateChargePayload": {
             "type": "object",
             "properties": {
-                "abdomen_back": {
+                "address": {
                     "type": "string"
                 },
-                "accused_id": {
+                "dob": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "nin": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.UpdateExaminationPayload": {
+            "type": "object",
+            "properties": {
+                "case_id": {
                     "type": "integer"
                 },
-                "ano_genital": {
+                "consent_given": {
+                    "type": "boolean"
+                },
+                "exam_date": {
                     "type": "string"
                 },
-                "chest_breast": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "date": {
-                    "type": "string"
+                "facility_id": {
+                    "type": "integer"
                 },
                 "findings": {
                     "type": "string"
                 },
-                "general_condition": {
-                    "type": "string"
-                },
-                "head_neck": {
-                    "type": "string"
-                },
-                "id": {
+                "practitioner_id": {
                     "type": "integer"
                 },
-                "mental_status": {
+                "referral": {
+                    "description": "Optional referral info",
                     "type": "string"
                 },
-                "pictogram_back": {
-                    "type": "string"
-                },
-                "pictogram_female": {
-                    "type": "string"
-                },
-                "pictogram_front": {
-                    "type": "string"
-                },
-                "pictogram_male": {
-                    "type": "string"
-                },
-                "place": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "upper_lower_limbs": {
+                "treatment": {
                     "type": "string"
                 },
                 "victim_id": {
@@ -1335,52 +2497,289 @@ const docTemplate = `{
                 }
             }
         },
-        "models.PoliceOfficer": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "force_number": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "password_hash": {
-                    "type": "string"
-                },
-                "rank": {
-                    "type": "string"
-                },
-                "station_id": {
-                    "type": "integer"
-                },
-                "telephone": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.PoliceStation": {
+        "controllers.UpdateHealthFacilityPayload": {
             "type": "object",
             "properties": {
                 "contact": {
                     "type": "string"
                 },
-                "created_at": {
+                "location": {
                     "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.UpdateHealthPractitionerPayload": {
+            "type": "object",
+            "properties": {
+                "facility_id": {
+                    "type": "integer"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "profession": {
+                    "description": "e.g., Doctor, Nurse, Counselor",
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.UpdatePoliceOfficerPayload": {
+            "type": "object",
+            "properties": {
+                "badge_no": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "post_id": {
+                    "type": "integer"
+                },
+                "rank": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.UpdatePolicePostPayload": {
+            "type": "object",
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.UpdateVictimPayload": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "dob": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "nin": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "fiber.Map": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.Case": {
+            "type": "object",
+            "properties": {
+                "case_number": {
+                    "type": "string"
+                },
+                "charges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Charge"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "date_opened": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "officer": {
+                    "$ref": "#/definitions/models.PoliceOfficer"
+                },
+                "officer_id": {
+                    "type": "integer"
+                },
+                "policePost": {
+                    "$ref": "#/definitions/models.PolicePost"
+                },
+                "police_post_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "suspect_id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "victims": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Victim"
+                    }
+                }
+            }
+        },
+        "models.Charge": {
+            "type": "object",
+            "properties": {
+                "case_id": {
+                    "type": "integer"
+                },
+                "charge_title": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "severity": {
+                    "description": "e.g., Felony, Misdemeanor",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Examination": {
+            "type": "object",
+            "properties": {
+                "case": {
+                    "$ref": "#/definitions/models.Case"
+                },
+                "case_id": {
+                    "type": "integer"
+                },
+                "consent_given": {
+                    "type": "boolean"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "exam_date": {
+                    "type": "string"
+                },
+                "facility": {
+                    "$ref": "#/definitions/models.HealthFacility"
+                },
+                "facility_id": {
+                    "type": "integer"
+                },
+                "findings": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "practitioner": {
+                    "$ref": "#/definitions/models.HealthPractitioner"
+                },
+                "practitioner_id": {
+                    "type": "integer"
+                },
+                "referral": {
+                    "description": "Optional referral info",
+                    "type": "string"
+                },
+                "treatment": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "victim": {
+                    "$ref": "#/definitions/models.Victim"
+                },
+                "victim_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.HealthFacility": {
+            "type": "object",
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "id": {
                     "type": "integer"
@@ -1391,7 +2790,164 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "updated_at": {
+                "practitioners": {
+                    "description": "Relationships",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.HealthPractitioner"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.HealthPractitioner": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "examinations": {
+                    "description": "Relationships",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Examination"
+                    }
+                },
+                "facility_id": {
+                    "description": "Foreign key to HealthFacility",
+                    "type": "integer"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "profession": {
+                    "description": "e.g., Doctor, Nurse, Counselor",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PoliceOfficer": {
+            "type": "object",
+            "properties": {
+                "badge_no": {
+                    "type": "string"
+                },
+                "cases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Case"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "post_id": {
+                    "type": "integer"
+                },
+                "rank": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Role"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PolicePost": {
+            "type": "object",
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "officers": {
+                    "description": "Relationships",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PoliceOfficer"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Role": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -1399,67 +2955,53 @@ const docTemplate = `{
         "models.Victim": {
             "type": "object",
             "properties": {
-                "abdomen_back": {
+                "address": {
                     "type": "string"
                 },
-                "age_estimation_note": {
+                "cases": {
+                    "description": "Relationships",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Case"
+                    }
+                },
+                "createdAt": {
                     "type": "string"
                 },
-                "apparent_age": {
+                "created_by": {
                     "type": "string"
                 },
-                "case_number": {
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "dob": {
                     "type": "string"
                 },
-                "chest_breast": {
+                "first_name": {
                     "type": "string"
                 },
-                "created_at": {
-                    "type": "string"
-                },
-                "date_of_incident": {
-                    "type": "string"
-                },
-                "general_condition": {
-                    "type": "string"
-                },
-                "head_neck": {
+                "gender": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "incident_history": {
+                "last_name": {
                     "type": "string"
                 },
-                "marital_status": {
+                "nationality": {
                     "type": "string"
                 },
-                "mental_status": {
+                "nin": {
                     "type": "string"
                 },
-                "name": {
+                "phone_number": {
                     "type": "string"
                 },
-                "narrator": {
+                "updatedAt": {
                     "type": "string"
                 },
-                "occupation": {
-                    "type": "string"
-                },
-                "police_unit": {
-                    "type": "string"
-                },
-                "relationship": {
-                    "type": "string"
-                },
-                "residence": {
-                    "type": "string"
-                },
-                "sex": {
-                    "type": "string"
-                },
-                "updated_at": {
+                "updated_by": {
                     "type": "string"
                 }
             }
@@ -1470,11 +3012,11 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "localhost:8080/api",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "GBVMIS API",
-	Description:      "This is the API documentation for the GBV Management Information System",
+	Title:            "SGBV Police API",
+	Description:      "This is a SGBV-police api",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
