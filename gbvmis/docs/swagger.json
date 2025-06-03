@@ -14,7 +14,7 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8080/api",
+    "host": "clims.health.go.ug:8085/api",
     "basePath": "/",
     "paths": {
         "/case": {
