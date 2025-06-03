@@ -398,7 +398,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-host: localhost:8085/api
+host: clims.health.go.ug:8085/api
 info:
   contact:
     email: fiber@swagger.io
