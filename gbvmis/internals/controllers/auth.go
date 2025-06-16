@@ -9,6 +9,18 @@ import (
 	"gorm.io/gorm"
 )
 
+// Login godoc
+//	@Summary		Login a police officer
+//	@Description	Authenticate a police officer using email or username and password
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			credentials	body		object{identifier=string,password=string}	true	"Login credentials"
+//	@Success		200			{object}	map[string]string							"Returns access and refresh tokens"
+//	@Failure		400			{object}	map[string]string							"Invalid input"
+//	@Failure		401			{object}	map[string]string							"Invalid credentials"
+//	@Failure		500			{object}	map[string]string							"Token generation error"
+//	@Router			/login [post]
 func Login(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var creds struct {
@@ -48,6 +60,18 @@ func Login(db *gorm.DB) fiber.Handler {
 	}
 }
 
+// RefreshToken godoc
+//	@Summary		Refresh JWT tokens
+//	@Description	Generates new access and refresh tokens using a valid refresh token
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			refresh_token	body		object{refresh_token=string}	true	"Refresh token"
+//	@Success		200				{object}	map[string]string				"Returns new access and refresh tokens"
+//	@Failure		400				{object}	map[string]string				"Invalid input"
+//	@Failure		401				{object}	map[string]string				"Invalid or expired refresh token"
+//	@Failure		500				{object}	map[string]string				"Token generation error"
+//	@Router			/refresh-token [post]
 func RefreshToken(c *fiber.Ctx) error {
 	var body struct {
 		RefreshToken string `json:"refresh_token"`

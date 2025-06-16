@@ -1283,6 +1283,53 @@ paths:
       summary: Search for health practitioners with pagination
       tags:
       - Health practitioners
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a police officer using email or username and password
+      parameters:
+      - description: Login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          properties:
+            identifier:
+              type: string
+            password:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns access and refresh tokens
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Token generation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login a police officer
+      tags:
+      - Auth
   /police-officer:
     post:
       consumes:
@@ -1613,6 +1660,51 @@ paths:
       summary: Search for policePosts with pagination
       tags:
       - Police Posts
+  /refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: Generates new access and refresh tokens using a valid refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: refresh_token
+        required: true
+        schema:
+          properties:
+            refresh_token:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns new access and refresh tokens
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid or expired refresh token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Token generation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refresh JWT tokens
+      tags:
+      - Auth
   /suspect:
     post:
       consumes:
