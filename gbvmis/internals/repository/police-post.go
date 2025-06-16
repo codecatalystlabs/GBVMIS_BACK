@@ -70,7 +70,7 @@ func (r *PolicePostRepositoryImpl) SearchPaginatedPolicePosts(c *fiber.Ctx) (*ut
 		query = query.Where("name ILIKE ?", "%"+Name+"%")
 	}
 	if Location != "" {
-		query = query.Where("severity ILIKE ?", "%"+Location+"%")
+		query = query.Where("location ILIKE ?", "%"+Location+"%")
 	}
 
 	// Call the pagination helper

@@ -1,5 +1,42 @@
 basePath: /
 definitions:
+  controllers.CreateOfficerPayload:
+    properties:
+      badge_no:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      phone:
+        type: string
+      post_id:
+        type: integer
+      rank:
+        type: string
+      role_ids:
+        description: 'Optional: to assign roles'
+        items:
+          type: integer
+        type: array
+      username:
+        type: string
+    required:
+    - badge_no
+    - email
+    - first_name
+    - last_name
+    - password
+    - phone
+    - post_id
+    - rank
+    - username
+    type: object
   controllers.UpdateCasePayload:
     properties:
       date_opened:
@@ -95,12 +132,18 @@ definitions:
         type: string
       last_name:
         type: string
+      password:
+        type: string
       phone:
         type: string
       post_id:
         type: integer
       rank:
         type: string
+      role_ids:
+        items:
+          type: integer
+        type: array
     type: object
   controllers.UpdatePolicePostPayload:
     properties:
@@ -312,6 +355,8 @@ definitions:
         type: integer
       last_name:
         type: string
+      password:
+        type: string
       phone:
         type: string
       post_id:
@@ -398,12 +443,12 @@ definitions:
       updatedAt:
         type: string
     type: object
-host: clims.health.go.ug:8085/api
+host: localhost:8080/api
 info:
   contact:
     email: fiber@swagger.io
     name: API Support
-  description: This is a SGBV-police api
+  description: This is a gbvmis api
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -1250,7 +1295,7 @@ paths:
         name: PoliceOfficer
         required: true
         schema:
-          $ref: '#/definitions/models.PoliceOfficer'
+          $ref: '#/definitions/controllers.CreateOfficerPayload'
       produces:
       - application/json
       responses:

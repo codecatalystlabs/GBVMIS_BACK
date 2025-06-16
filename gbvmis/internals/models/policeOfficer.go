@@ -13,7 +13,7 @@ type PoliceOfficer struct {
 
 	Username string `gorm:"uniqueIndex;not null" json:"username"`
 	Email    string `gorm:"uniqueIndex;not null" json:"email"`
-	Password string `gorm:"not null" json:"-"`
+	Password string `gorm:"not null" json:"password"`
 
 	Roles []*Role `gorm:"many2many:officer_roles;" json:"roles"`
 	Cases []Case  `gorm:"foreignKey:OfficerID" json:"cases"`

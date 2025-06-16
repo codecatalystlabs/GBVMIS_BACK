@@ -1278,7 +1278,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.PoliceOfficer"
+                            "$ref": "#/definitions/controllers.CreateOfficerPayload"
                         }
                     }
                 ],
@@ -2406,6 +2406,57 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controllers.CreateOfficerPayload": {
+            "type": "object",
+            "required": [
+                "badge_no",
+                "email",
+                "first_name",
+                "last_name",
+                "password",
+                "phone",
+                "post_id",
+                "rank",
+                "username"
+            ],
+            "properties": {
+                "badge_no": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "post_id": {
+                    "type": "integer"
+                },
+                "rank": {
+                    "type": "string"
+                },
+                "role_ids": {
+                    "description": "Optional: to assign roles",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.UpdateCasePayload": {
             "type": "object",
             "properties": {
@@ -2550,6 +2601,9 @@ const docTemplate = `{
                 "last_name": {
                     "type": "string"
                 },
+                "password": {
+                    "type": "string"
+                },
                 "phone": {
                     "type": "string"
                 },
@@ -2558,6 +2612,12 @@ const docTemplate = `{
                 },
                 "rank": {
                     "type": "string"
+                },
+                "role_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },
@@ -2876,6 +2936,9 @@ const docTemplate = `{
                 "last_name": {
                     "type": "string"
                 },
+                "password": {
+                    "type": "string"
+                },
                 "phone": {
                     "type": "string"
                 },
@@ -3012,11 +3075,11 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "clims.health.go.ug:8085/api",
+	Host:             "localhost:8080/api",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "SGBV Police API",
-	Description:      "This is a SGBV-police api",
+	Description:      "This is a gbvmis api",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

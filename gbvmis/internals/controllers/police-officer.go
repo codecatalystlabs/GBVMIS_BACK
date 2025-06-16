@@ -6,6 +6,7 @@ import (
 	"gbvmis/internals/repository"
 	"gbvmis/internals/utils"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -19,6 +20,67 @@ func NewPoliceOfficerController(repo repository.PoliceOfficerRepository) *Police
 	return &PoliceOfficerController{repo: repo}
 }
 
+type PoliceOfficerResponse struct {
+	ID        uint           `json:"id"`
+	FirstName string         `json:"first_name"`
+	LastName  string         `json:"last_name"`
+	Rank      string         `json:"rank"`
+	BadgeNo   string         `json:"badge_no"`
+	Phone     string         `json:"phone"`
+	PostID    uint           `json:"post_id"`
+	Username  string         `json:"username"`
+	Email     string         `json:"email"`
+	Roles     []RoleResponse `json:"roles"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+}
+
+// Nested response structs
+type RoleResponse struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+}
+
+type CreateOfficerPayload struct {
+	FirstName string `json:"first_name" validate:"required"`
+	LastName  string `json:"last_name" validate:"required"`
+	Rank      string `json:"rank" validate:"required"`
+	BadgeNo   string `json:"badge_no" validate:"required"`
+	Phone     string `json:"phone" validate:"required"`
+	PostID    uint   `json:"post_id" validate:"required"`
+
+	Username string `json:"username" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=6"`
+
+	RoleIDs []uint `json:"role_ids"` // Optional: to assign roles
+}
+
+func ConvertToPoliceOfficerResponse(officer models.PoliceOfficer) PoliceOfficerResponse {
+	roles := make([]RoleResponse, len(officer.Roles))
+	for i, role := range officer.Roles {
+		roles[i] = RoleResponse{
+			ID:   role.ID,
+			Name: role.Name,
+		}
+	}
+
+	return PoliceOfficerResponse{
+		ID:        officer.ID,
+		FirstName: officer.FirstName,
+		LastName:  officer.LastName,
+		Rank:      officer.Rank,
+		BadgeNo:   officer.BadgeNo,
+		Phone:     officer.Phone,
+		PostID:    officer.PostID,
+		Username:  officer.Username,
+		Email:     officer.Email,
+		Roles:     roles,
+		CreatedAt: officer.CreatedAt,
+		UpdatedAt: officer.UpdatedAt,
+	}
+}
+
 // ================================
 
 // CreatePoliceOfficer godoc
@@ -28,17 +90,15 @@ func NewPoliceOfficerController(repo repository.PoliceOfficerRepository) *Police
 //	@Tags			Police Officers
 //	@Accept			json
 //	@Produce		json
-//	@Param			PoliceOfficer	body		models.PoliceOfficer	true	"PoliceOfficer data to create"
-//	@Success		201		{object}	fiber.Map	"Successfully created police Officer record"
-//	@Failure		400		{object}	fiber.Map	"Bad request due to invalid input"
-//	@Failure		500		{object}	fiber.Map	"Server error when creating police Officer"
+//	@Param			PoliceOfficer	body		CreateOfficerPayload	true	"PoliceOfficer data to create"
+//	@Success		201				{object}	fiber.Map				"Successfully created police Officer record"
+//	@Failure		400				{object}	fiber.Map				"Bad request due to invalid input"
+//	@Failure		500				{object}	fiber.Map				"Server error when creating police Officer"
 //	@Router			/police-officer [post]
 func (h *PoliceOfficerController) CreatePoliceOfficer(c *fiber.Ctx) error {
-	// Initialize a new police officer instance
-	policeOfficer := new(models.PoliceOfficer)
+	var payload CreateOfficerPayload
 
-	// Parse the request body into the PoliceOfficer instance
-	if err := c.BodyParser(policeOfficer); err != nil {
+	if err := c.BodyParser(&payload); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Invalid input provided",
@@ -46,14 +106,15 @@ func (h *PoliceOfficerController) CreatePoliceOfficer(c *fiber.Ctx) error {
 		})
 	}
 
-	if policeOfficer.Username == "" || policeOfficer.Email == "" || policeOfficer.Password == "" {
+	// You can add validation logic here if you're using a validator
+	if payload.Username == "" || payload.Email == "" || payload.Password == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"status":  "error",
 			"message": "username, email, and password are required",
 		})
 	}
 
-	hashed, err := utils.HashPassword(policeOfficer.Password)
+	hashed, err := utils.HashPassword(payload.Password)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
@@ -61,10 +122,35 @@ func (h *PoliceOfficerController) CreatePoliceOfficer(c *fiber.Ctx) error {
 			"data":    err.Error(),
 		})
 	}
-	policeOfficer.Password = hashed
 
-	// Attempt to create the policeOfficer record using the repository
-	if err := h.repo.CreatePoliceOfficer(policeOfficer); err != nil {
+	// Build PoliceOfficer from payload
+	officer := &models.PoliceOfficer{
+		FirstName: payload.FirstName,
+		LastName:  payload.LastName,
+		Rank:      payload.Rank,
+		BadgeNo:   payload.BadgeNo,
+		Phone:     payload.Phone,
+		PostID:    payload.PostID,
+		Username:  payload.Username,
+		Email:     payload.Email,
+		Password:  hashed,
+	}
+
+	// Optional: Attach roles
+	if len(payload.RoleIDs) > 0 {
+		var roles []*models.Role
+		if err := h.repo.FindRolesByIDs(payload.RoleIDs, &roles); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Failed to fetch roles",
+				"data":    err.Error(),
+			})
+		}
+		officer.Roles = roles
+	}
+
+	// Save
+	if err := h.repo.CreatePoliceOfficer(officer); err != nil {
 		if strings.Contains(err.Error(), "duplicate key value") {
 			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 				"status":  "error",
@@ -79,11 +165,12 @@ func (h *PoliceOfficerController) CreatePoliceOfficer(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return the newly created policeOfficer record
+	// Format response
+	response := ConvertToPoliceOfficerResponse(*officer)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"status":  "success",
-		"message": "police officer created successfully",
-		"data":    policeOfficer,
+		"message": "Police officer created successfully",
+		"data":    response,
 	})
 }
 
@@ -96,8 +183,8 @@ func (h *PoliceOfficerController) CreatePoliceOfficer(c *fiber.Ctx) error {
 //	@Tags			Police Officers
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"policeOfficers retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve policeOfficers"
+//	@Success		200	{object}	fiber.Map	"policeOfficers retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve policeOfficers"
 //	@Router			/police-officers [get]
 func (h *PoliceOfficerController) GetAllPoliceOfficers(c *fiber.Ctx) error {
 	pagination, policeOfficers, err := h.repo.GetPaginatedPoliceOfficers(c)
@@ -108,12 +195,16 @@ func (h *PoliceOfficerController) GetAllPoliceOfficers(c *fiber.Ctx) error {
 			"data":    err.Error(),
 		})
 	}
+	officerResponses := make([]PoliceOfficerResponse, len(policeOfficers))
+	for i, officer := range policeOfficers {
+		officerResponses[i] = ConvertToPoliceOfficerResponse(officer)
+	}
 
 	// Return the paginated response
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status":  "success",
 		"message": "Police officers retrieved successfully",
-		"data":    policeOfficers,
+		"data":    officerResponses,
 		"pagination": fiber.Map{
 			"total_items":  pagination.TotalItems,
 			"total_pages":  pagination.TotalPages,
@@ -132,10 +223,10 @@ func (h *PoliceOfficerController) GetAllPoliceOfficers(c *fiber.Ctx) error {
 //	@Tags			Police Officers
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"PoliceOfficer ID"
-//	@Success		200		{object}	fiber.Map	"PoliceOfficer retrieved successfully"
-//	@Failure		404		{object}	fiber.Map	"PoliceOfficer not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when retrieving PoliceOfficer"
+//	@Param			id	path		string		true	"PoliceOfficer ID"
+//	@Success		200	{object}	fiber.Map	"PoliceOfficer retrieved successfully"
+//	@Failure		404	{object}	fiber.Map	"PoliceOfficer not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when retrieving PoliceOfficer"
 //	@Router			/police-officer/{id} [get]
 func (h *PoliceOfficerController) GetSinglePoliceOfficer(c *fiber.Ctx) error {
 	// Get the policeOfficer ID from the route parameters
@@ -147,21 +238,24 @@ func (h *PoliceOfficerController) GetSinglePoliceOfficer(c *fiber.Ctx) error {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 				"status":  "error",
-				"message": "policeOfficer not found",
+				"message": "Police officer not found",
 			})
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
-			"message": "Failed to retrieve PoliceOfficer",
+			"message": "Failed to retrieve police officer",
 			"data":    err.Error(),
 		})
 	}
 
+	// Convert to response struct
+	response := ConvertToPoliceOfficerResponse(policeOfficer)
+
 	// Return the response
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status":  "success",
-		"message": "PoliceOfficer and associated data retrieved successfully",
-		"data":    policeOfficer,
+		"message": "Police officer and associated data retrieved successfully",
+		"data":    response,
 	})
 }
 
@@ -176,7 +270,20 @@ type UpdatePoliceOfficerPayload struct {
 	Phone     string `json:"phone"`
 	PostID    uint   `json:"post_id"`
 	Email     string `json:"email"`
-	Password  string `json:"-"`
+	Password  string `json:"password"`
+	RoleIDs   []uint `json:"role_ids"`
+}
+
+func (p UpdatePoliceOfficerPayload) IsEmpty() bool {
+	return p.FirstName == "" &&
+		p.LastName == "" &&
+		p.Rank == "" &&
+		p.BadgeNo == "" &&
+		p.Phone == "" &&
+		p.PostID == 0 &&
+		p.Email == "" &&
+		p.Password == "" &&
+		len(p.RoleIDs) == 0
 }
 
 // UpdatePoliceOfficer godoc
@@ -186,54 +293,51 @@ type UpdatePoliceOfficerPayload struct {
 //	@Tags			Police Officers
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"PoliceOfficer ID"
+//	@Param			id				path		string						true	"PoliceOfficer ID"
 //	@Param			policeOfficer	body		UpdatePoliceOfficerPayload	true	"PoliceOfficer data to update"
-//	@Success		200		{object}	fiber.Map	"PoliceOfficer updated successfully"
-//	@Failure		400		{object}	fiber.Map	"Invalid input or empty request body"
-//	@Failure		404		{object}	fiber.Map	"PoliceOfficer not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when updating policeOfficer"
+//	@Success		200				{object}	fiber.Map					"PoliceOfficer updated successfully"
+//	@Failure		400				{object}	fiber.Map					"Invalid input or empty request body"
+//	@Failure		404				{object}	fiber.Map					"PoliceOfficer not found"
+//	@Failure		500				{object}	fiber.Map					"Server error when updating policeOfficer"
 //	@Router			/police-officer/{id} [put]
 func (h *PoliceOfficerController) UpdatePoliceOfficer(c *fiber.Ctx) error {
-	// Get the policeOfficer ID from the route parameters
 	id := c.Params("id")
 
-	// Find the policeOfficer in the database
-	_, err := h.repo.GetPoliceOfficerByID(id)
+	// Step 1: Check if the police officer exists
+	officer, err := h.repo.GetPoliceOfficerByID(id)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return c.Status(404).JSON(fiber.Map{
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 				"status":  "error",
-				"message": "PoliceOfficer not found",
+				"message": "Police officer not found",
 			})
 		}
-		return c.Status(500).JSON(fiber.Map{
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
-			"message": "Failed to retrieve PoliceOfficer",
+			"message": "Failed to retrieve police officer",
 			"data":    err.Error(),
 		})
 	}
 
-	// Parse the request body into the UpdatePoliceOfficerPayload struct
+	// Step 2: Parse input
 	var payload UpdatePoliceOfficerPayload
 	if err := c.BodyParser(&payload); err != nil {
-		return c.Status(400).JSON(fiber.Map{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Invalid input",
 			"data":    err.Error(),
 		})
 	}
 
-	// Check if the request body is empty
-	if (UpdatePoliceOfficerPayload{} == payload) {
-		return c.Status(400).JSON(fiber.Map{
+	if payload.IsEmpty() {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"status":  "error",
-			"message": "Empty request body",
+			"message": "No update fields provided",
 		})
 	}
 
-	// Convert payload to a map for partial update
+	// Step 3: Build update map
 	updates := make(map[string]interface{})
-
 	if payload.FirstName != "" {
 		updates["first_name"] = payload.FirstName
 	}
@@ -252,24 +356,63 @@ func (h *PoliceOfficerController) UpdatePoliceOfficer(c *fiber.Ctx) error {
 	if payload.PostID != 0 {
 		updates["post_id"] = payload.PostID
 	}
-	// if payload.UpdatedBy != "" {
-	// 	updates["updated_by"] = payload.UpdatedBy
-	// }
+	if payload.Password != "" {
+		hashed, err := utils.HashPassword(payload.Password)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Failed to hash password",
+				"data":    err.Error(),
+			})
+		}
+		updates["password"] = hashed
+	}
 
-	// Update the PoliceOfficer in the database
+	// Update roles if provided
+	if payload.RoleIDs != nil {
+		var roles []*models.Role
+		if err := h.repo.FindRolesByIDs(payload.RoleIDs, &roles); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Failed to fetch roles",
+				"data":    err.Error(),
+			})
+		}
+		// Replace roles
+		if err := h.repo.UpdateOfficerRoles(&officer, roles); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Failed to update roles",
+				"data":    err.Error(),
+			})
+		}
+	}
+
+	// Step 4: Perform update
 	if err := h.repo.UpdatePoliceOfficer(id, updates); err != nil {
-		return c.Status(500).JSON(fiber.Map{
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
-			"message": "Failed to update policeOfficer",
+			"message": "Failed to update police officer",
 			"data":    err.Error(),
 		})
 	}
 
-	// Return success response
-	return c.Status(200).JSON(fiber.Map{
+	// Step 5: Load updated officer
+	updatedOfficer, err := h.repo.GetPoliceOfficerByID(id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Failed to load updated police officer",
+			"data":    err.Error(),
+		})
+	}
+
+	// Step 6: Return clean response
+	response := ConvertToPoliceOfficerResponse(updatedOfficer)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status":  "success",
-		"message": "PoliceOfficer updated successfully",
-		"data":    updates,
+		"message": "Police officer updated successfully",
+		"data":    response,
 	})
 }
 
@@ -282,10 +425,10 @@ func (h *PoliceOfficerController) UpdatePoliceOfficer(c *fiber.Ctx) error {
 //	@Tags			Police Officers
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"PoliceOfficer ID"
-//	@Success		200		{object}	fiber.Map	"PoliceOfficer deleted successfully"
-//	@Failure		404		{object}	fiber.Map	"PoliceOfficer not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when deleting policeOfficer"
+//	@Param			id	path		string		true	"PoliceOfficer ID"
+//	@Success		200	{object}	fiber.Map	"PoliceOfficer deleted successfully"
+//	@Failure		404	{object}	fiber.Map	"PoliceOfficer not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when deleting policeOfficer"
 //	@Router			/police-officer/{id} [delete]
 func (h *PoliceOfficerController) DeletePoliceOfficerByID(c *fiber.Ctx) error {
 	// Get the PoliceOfficer ID from the route parameters
@@ -317,10 +460,11 @@ func (h *PoliceOfficerController) DeletePoliceOfficerByID(c *fiber.Ctx) error {
 	}
 
 	// Return success response
-	return c.Status(200).JSON(fiber.Map{
+	response := ConvertToPoliceOfficerResponse(policeOfficer)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status":  "success",
 		"message": "PoliceOfficer deleted successfully",
-		"data":    policeOfficer,
+		"data":    response,
 	})
 }
 
@@ -333,8 +477,8 @@ func (h *PoliceOfficerController) DeletePoliceOfficerByID(c *fiber.Ctx) error {
 //	@Tags			Police Officers
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"PoliceOfficers retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve PoliceOfficers"
+//	@Success		200	{object}	fiber.Map	"PoliceOfficers retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve PoliceOfficers"
 //	@Router			/police-officers/search [get]
 func (h *PoliceOfficerController) SearchPoliceOfficers(c *fiber.Ctx) error {
 	// Call the repository function to get paginated search results
@@ -347,11 +491,21 @@ func (h *PoliceOfficerController) SearchPoliceOfficers(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return the response with pagination details
-	return c.Status(200).JSON(fiber.Map{
-		"status":     "success",
-		"message":    "PoliceOfficers retrieved successfully",
-		"pagination": pagination,
-		"data":       policeOfficers,
+	officerResponses := make([]PoliceOfficerResponse, len(policeOfficers))
+	for i, officer := range policeOfficers {
+		officerResponses[i] = ConvertToPoliceOfficerResponse(officer)
+	}
+
+	// Return the paginated response
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status":  "success",
+		"message": "Police officers retrieved successfully",
+		"data":    officerResponses,
+		"pagination": fiber.Map{
+			"total_items":  pagination.TotalItems,
+			"total_pages":  pagination.TotalPages,
+			"current_page": pagination.CurrentPage,
+			"limit":        pagination.ItemsPerPage,
+		},
 	})
 }

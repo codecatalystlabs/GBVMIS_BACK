@@ -15,6 +15,31 @@ func hashPassword(password string) (string, error) {
 
 func SeedDatabase(db *gorm.DB) {
 
+	roles := []models.Role{
+		{
+			Name: "Admin",
+		},
+		{
+			Name: "Station Manager",
+		},
+		{
+			Name: "User",
+		},
+	}
+
+	// Check if the companies table already has data
+	var roleCount int64
+	db.Model(&models.Role{}).Count(&roleCount)
+	if roleCount == 0 {
+		if err := db.Create(&roles).Error; err != nil {
+			log.Fatalf("Failed to seed roles: %v", err)
+		} else {
+			log.Println("Roles data seeded successfully")
+		}
+	} else {
+		log.Println("Roles table already seeded, skipping...")
+	}
+
 	companies := []models.PolicePost{
 		{
 			Name:     "Kampala Central Police Head quarters",

@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is a SGBV-police api",
+        "description": "This is a gbvmis api",
         "title": "SGBV Police API",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
@@ -14,7 +14,7 @@
         },
         "version": "1.0"
     },
-    "host": "clims.health.go.ug:8085/api",
+    "host": "localhost:8080/api",
     "basePath": "/",
     "paths": {
         "/case": {
@@ -1272,7 +1272,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.PoliceOfficer"
+                            "$ref": "#/definitions/controllers.CreateOfficerPayload"
                         }
                     }
                 ],
@@ -2400,6 +2400,57 @@
         }
     },
     "definitions": {
+        "controllers.CreateOfficerPayload": {
+            "type": "object",
+            "required": [
+                "badge_no",
+                "email",
+                "first_name",
+                "last_name",
+                "password",
+                "phone",
+                "post_id",
+                "rank",
+                "username"
+            ],
+            "properties": {
+                "badge_no": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "post_id": {
+                    "type": "integer"
+                },
+                "rank": {
+                    "type": "string"
+                },
+                "role_ids": {
+                    "description": "Optional: to assign roles",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.UpdateCasePayload": {
             "type": "object",
             "properties": {
@@ -2544,6 +2595,9 @@
                 "last_name": {
                     "type": "string"
                 },
+                "password": {
+                    "type": "string"
+                },
                 "phone": {
                     "type": "string"
                 },
@@ -2552,6 +2606,12 @@
                 },
                 "rank": {
                     "type": "string"
+                },
+                "role_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },
@@ -2868,6 +2928,9 @@
                     "type": "integer"
                 },
                 "last_name": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 },
                 "phone": {

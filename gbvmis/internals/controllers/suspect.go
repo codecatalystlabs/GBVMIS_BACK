@@ -27,21 +27,21 @@ func NewSuspectController(repo repository.SuspectRepository) *SuspectController 
 //	@Tags			Suspects
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			first_name		formData	string	true	"First Name"
-//	@Param			middle_name		formData	string	false	"Middle Name"
-//	@Param			last_name		formData	string	true	"Last Name"
-//	@Param			dob				formData	string	false	"DOB in YYYY-MM-DD format"
-//	@Param			gender			formData	string	false	"Gender"
-//	@Param			phone_number	formData	string	false	"Phone Number"
-//	@Param			nin				formData	string	false	"NIN"
-//	@Param			nationality		formData	string	false	"Nationality"
-//	@Param			address			formData	string	false	"Address"
-//	@Param			occupation		formData	string	false	"Occupation"
-//	@Param			status			formData	string	false	"Status"
-//	@Param			created_by		formData	string	true	"Created By"
-//	@Param			updated_by		formData	string	false	"Updated By"
-//	@Param			photo			formData	file	false	"Photo file upload"
-//	@Param			fingerprints	formData	file	false	"Fingerprints file upload"
+//	@Param			first_name		formData	string		true	"First Name"
+//	@Param			middle_name		formData	string		false	"Middle Name"
+//	@Param			last_name		formData	string		true	"Last Name"
+//	@Param			dob				formData	string		false	"DOB in YYYY-MM-DD format"
+//	@Param			gender			formData	string		false	"Gender"
+//	@Param			phone_number	formData	string		false	"Phone Number"
+//	@Param			nin				formData	string		false	"NIN"
+//	@Param			nationality		formData	string		false	"Nationality"
+//	@Param			address			formData	string		false	"Address"
+//	@Param			occupation		formData	string		false	"Occupation"
+//	@Param			status			formData	string		false	"Status"
+//	@Param			created_by		formData	string		true	"Created By"
+//	@Param			updated_by		formData	string		false	"Updated By"
+//	@Param			photo			formData	file		false	"Photo file upload"
+//	@Param			fingerprints	formData	file		false	"Fingerprints file upload"
 //	@Success		201				{object}	fiber.Map	"Successfully created suspect record"
 //	@Failure		400				{object}	fiber.Map	"Bad request due to invalid input or file error"
 //	@Failure		500				{object}	fiber.Map	"Server error when creating suspect"
@@ -158,19 +158,19 @@ func (h *SuspectController) CreateSuspect(c *fiber.Ctx) error {
 //	@Tags			Suspects
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			id				path		string	true	"Suspect ID"
-//	@Param			first_name		formData	string	false	"First Name"
-//	@Param			middle_name		formData	string	false	"Middle Name"
-//	@Param			last_name		formData	string	false	"Last Name"
-//	@Param			dob				formData	string	false	"DOB in YYYY-MM-DD format"
-//	@Param			gender			formData	string	false	"Gender"
-//	@Param			phone_number	formData	string	false	"Phone Number"
-//	@Param			nin				formData	string	false	"NIN"
-//	@Param			nationality		formData	string	false	"Nationality"
-//	@Param			address			formData	string	false	"Address"
-//	@Param			occupation		formData	string	false	"Occupation"
-//	@Param			status			formData	string	false	"Status"
-//	@Param			updated_by		formData	string	true	"Updated By"
+//	@Param			id				path		string		true	"Suspect ID"
+//	@Param			first_name		formData	string		false	"First Name"
+//	@Param			middle_name		formData	string		false	"Middle Name"
+//	@Param			last_name		formData	string		false	"Last Name"
+//	@Param			dob				formData	string		false	"DOB in YYYY-MM-DD format"
+//	@Param			gender			formData	string		false	"Gender"
+//	@Param			phone_number	formData	string		false	"Phone Number"
+//	@Param			nin				formData	string		false	"NIN"
+//	@Param			nationality		formData	string		false	"Nationality"
+//	@Param			address			formData	string		false	"Address"
+//	@Param			occupation		formData	string		false	"Occupation"
+//	@Param			status			formData	string		false	"Status"
+//	@Param			updated_by		formData	string		true	"Updated By"
 //	@Param			photo			formData	file		false	"Photo file upload"
 //	@Param			fingerprints	formData	file		false	"Fingerprints file upload"
 //	@Success		200				{object}	fiber.Map	"Suspect updated successfully"
@@ -329,8 +329,8 @@ func (h *SuspectController) UpdateSuspect(c *fiber.Ctx) error {
 //	@Tags			Suspects
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Suspects retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve suspects"
+//	@Success		200	{object}	fiber.Map	"Suspects retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve suspects"
 //	@Router			/suspects [get]
 func (h *SuspectController) GetAllSuspects(c *fiber.Ctx) error {
 	pagination, suspects, err := h.repo.GetPaginatedSuspects(c)
@@ -365,10 +365,10 @@ func (h *SuspectController) GetAllSuspects(c *fiber.Ctx) error {
 //	@Tags			Suspects
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Suspect ID"
-//	@Success		200		{object}	fiber.Map	"Suspect retrieved successfully"
-//	@Failure		404		{object}	fiber.Map	"Suspect not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when retrieving suspect"
+//	@Param			id	path		string		true	"Suspect ID"
+//	@Success		200	{object}	fiber.Map	"Suspect retrieved successfully"
+//	@Failure		404	{object}	fiber.Map	"Suspect not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when retrieving suspect"
 //	@Router			/suspect/{id} [get]
 func (h *SuspectController) GetSingleSuspect(c *fiber.Ctx) error {
 	// Get the Suspect ID from the route parameters
@@ -407,10 +407,10 @@ func (h *SuspectController) GetSingleSuspect(c *fiber.Ctx) error {
 //	@Tags			Suspects
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Suspect ID"
-//	@Success		200		{object}	fiber.Map	"Suspect deleted successfully"
-//	@Failure		404		{object}	fiber.Map	"Suspect not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when deleting suspect"
+//	@Param			id	path		string		true	"Suspect ID"
+//	@Success		200	{object}	fiber.Map	"Suspect deleted successfully"
+//	@Failure		404	{object}	fiber.Map	"Suspect not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when deleting suspect"
 //	@Router			/suspect/{id} [delete]
 func (h *SuspectController) DeleteSuspectByID(c *fiber.Ctx) error {
 	// Get the Suspect ID from the route parameters
@@ -458,8 +458,8 @@ func (h *SuspectController) DeleteSuspectByID(c *fiber.Ctx) error {
 //	@Tags			Suspects
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Suspects retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve suspects"
+//	@Success		200	{object}	fiber.Map	"Suspects retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve suspects"
 //	@Router			/suspects/search [get]
 func (h *SuspectController) SearchSuspects(c *fiber.Ctx) error {
 	// Call the repository function to get paginated search results

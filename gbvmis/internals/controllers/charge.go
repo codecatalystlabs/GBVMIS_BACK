@@ -27,9 +27,9 @@ func NewChargeController(repo repository.ChargeRepository) *ChargeController {
 //	@Accept			json
 //	@Produce		json
 //	@Param			charge	body		models.Charge	true	"Charge data to create"
-//	@Success		201		{object}	fiber.Map	"Successfully created charge record"
-//	@Failure		400		{object}	fiber.Map	"Bad request due to invalid input"
-//	@Failure		500		{object}	fiber.Map	"Server error when creating charge"
+//	@Success		201		{object}	fiber.Map		"Successfully created charge record"
+//	@Failure		400		{object}	fiber.Map		"Bad request due to invalid input"
+//	@Failure		500		{object}	fiber.Map		"Server error when creating charge"
 //	@Router			/charge [post]
 func (h *ChargeController) CreateCharge(c *fiber.Ctx) error {
 	// Initialize a new charge instance
@@ -70,8 +70,8 @@ func (h *ChargeController) CreateCharge(c *fiber.Ctx) error {
 //	@Tags			Charges
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Charges retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve charges"
+//	@Success		200	{object}	fiber.Map	"Charges retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve charges"
 //	@Router			/charges [get]
 func (h *ChargeController) GetAllCharges(c *fiber.Ctx) error {
 	pagination, charges, err := h.repo.GetPaginatedCharges(c)
@@ -106,10 +106,10 @@ func (h *ChargeController) GetAllCharges(c *fiber.Ctx) error {
 //	@Tags			Charges
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Charge ID"
-//	@Success		200		{object}	fiber.Map	"Charge retrieved successfully"
-//	@Failure		404		{object}	fiber.Map	"Charge not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when retrieving charge"
+//	@Param			id	path		string		true	"Charge ID"
+//	@Success		200	{object}	fiber.Map	"Charge retrieved successfully"
+//	@Failure		404	{object}	fiber.Map	"Charge not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when retrieving charge"
 //	@Router			/charge/{id} [get]
 func (h *ChargeController) GetSingleCharge(c *fiber.Ctx) error {
 	// Get the Charge ID from the route parameters
@@ -161,12 +161,12 @@ type UpdateChargePayload struct {
 //	@Tags			Charges
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Charge ID"
+//	@Param			id		path		string				true	"Charge ID"
 //	@Param			charge	body		UpdateChargePayload	true	"Charge data to update"
-//	@Success		200		{object}	fiber.Map	"Charge updated successfully"
-//	@Failure		400		{object}	fiber.Map	"Invalid input or empty request body"
-//	@Failure		404		{object}	fiber.Map	"Charge not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when updating charge"
+//	@Success		200		{object}	fiber.Map			"Charge updated successfully"
+//	@Failure		400		{object}	fiber.Map			"Invalid input or empty request body"
+//	@Failure		404		{object}	fiber.Map			"Charge not found"
+//	@Failure		500		{object}	fiber.Map			"Server error when updating charge"
 //	@Router			/charge/{id} [put]
 func (h *ChargeController) UpdateCharge(c *fiber.Ctx) error {
 	// Get the charge ID from the route parameters
@@ -263,10 +263,10 @@ func (h *ChargeController) UpdateCharge(c *fiber.Ctx) error {
 //	@Tags			Charges
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Charge ID"
-//	@Success		200		{object}	fiber.Map	"Charge deleted successfully"
-//	@Failure		404		{object}	fiber.Map	"Charge not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when deleting charge"
+//	@Param			id	path		string		true	"Charge ID"
+//	@Success		200	{object}	fiber.Map	"Charge deleted successfully"
+//	@Failure		404	{object}	fiber.Map	"Charge not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when deleting charge"
 //	@Router			/charge/{id} [delete]
 func (h *ChargeController) DeleteChargeByID(c *fiber.Ctx) error {
 	// Get the Charge ID from the route parameters
@@ -314,8 +314,8 @@ func (h *ChargeController) DeleteChargeByID(c *fiber.Ctx) error {
 //	@Tags			Charges
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Charges retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve charges"
+//	@Success		200	{object}	fiber.Map	"Charges retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve charges"
 //	@Router			/charges/search [get]
 func (h *ChargeController) SearchCharges(c *fiber.Ctx) error {
 	// Call the repository function to get paginated search results

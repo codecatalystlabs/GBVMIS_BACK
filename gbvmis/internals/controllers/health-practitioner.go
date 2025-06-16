@@ -26,10 +26,10 @@ func NewHealthPractitionerController(repo repository.HealthPractitionerRepositor
 //	@Tags			Health practitioners
 //	@Accept			json
 //	@Produce		json
-//	@Param			Health practitioner	body		models.HealthPractitioner	true	"Health practitioner data to create"
-//	@Success		201		{object}	fiber.Map	"Successfully created health practitioner record"
-//	@Failure		400		{object}	fiber.Map	"Bad request due to invalid input"
-//	@Failure		500		{object}	fiber.Map	"Server error when creating health practitioner"
+//	@Param			Health	practitioner	body		models.HealthPractitioner	true	"Health practitioner data to create"
+//	@Success		201		{object}		fiber.Map	"Successfully created health practitioner record"
+//	@Failure		400		{object}		fiber.Map	"Bad request due to invalid input"
+//	@Failure		500		{object}		fiber.Map	"Server error when creating health practitioner"
 //	@Router			/health-practitioner [post]
 func (h *HealthPractitionerController) CreateHealthPractitioner(c *fiber.Ctx) error {
 	// Initialize a new health practitioner instance
@@ -70,8 +70,8 @@ func (h *HealthPractitionerController) CreateHealthPractitioner(c *fiber.Ctx) er
 //	@Tags			Health practitioners
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Health practitioners retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve health practitioners"
+//	@Success		200	{object}	fiber.Map	"Health practitioners retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve health practitioners"
 //	@Router			/health-practitioners [get]
 func (h *HealthPractitionerController) GetAllHealthPractitioners(c *fiber.Ctx) error {
 	pagination, healthPractitioners, err := h.repo.GetPaginatedHealthPractitioners(c)
@@ -106,10 +106,10 @@ func (h *HealthPractitionerController) GetAllHealthPractitioners(c *fiber.Ctx) e
 //	@Tags			Health practitioners
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"HealthPractitioner ID"
-//	@Success		200		{object}	fiber.Map	"Health Practitioner retrieved successfully"
-//	@Failure		404		{object}	fiber.Map	"Health Practitioner not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when retrieving Health Practitioner"
+//	@Param			id	path		string		true	"HealthPractitioner ID"
+//	@Success		200	{object}	fiber.Map	"Health Practitioner retrieved successfully"
+//	@Failure		404	{object}	fiber.Map	"Health Practitioner not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when retrieving Health Practitioner"
 //	@Router			/health-practitioner/{id} [get]
 func (h *HealthPractitionerController) GetSingleHealthPractitioner(c *fiber.Ctx) error {
 	// Get the healthPractitioner ID from the route parameters
@@ -158,12 +158,12 @@ type UpdateHealthPractitionerPayload struct {
 //	@Tags			Health practitioners
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Health practitioner ID"
+//	@Param			id					path		string							true	"Health practitioner ID"
 //	@Param			HealthPractitioner	body		UpdateHealthPractitionerPayload	true	"Health practitioner data to update"
-//	@Success		200		{object}	fiber.Map	"Health practitioner updated successfully"
-//	@Failure		400		{object}	fiber.Map	"Invalid input or empty request body"
-//	@Failure		404		{object}	fiber.Map	"HealthPractitioner not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when updating Health practitioner"
+//	@Success		200					{object}	fiber.Map						"Health practitioner updated successfully"
+//	@Failure		400					{object}	fiber.Map						"Invalid input or empty request body"
+//	@Failure		404					{object}	fiber.Map						"HealthPractitioner not found"
+//	@Failure		500					{object}	fiber.Map						"Server error when updating Health practitioner"
 //	@Router			/health-practitioner/{id} [put]
 func (h *HealthPractitionerController) UpdateHealthPractitioner(c *fiber.Ctx) error {
 	// Get the HealthPractitioner ID from the route parameters
@@ -251,10 +251,10 @@ func (h *HealthPractitionerController) UpdateHealthPractitioner(c *fiber.Ctx) er
 //	@Tags			Health practitioners
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"HealthPractitioner ID"
-//	@Success		200		{object}	fiber.Map	"Health Practitioner deleted successfully"
-//	@Failure		404		{object}	fiber.Map	"HealthPractitioner not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when deleting HealthPractitioner"
+//	@Param			id	path		string		true	"HealthPractitioner ID"
+//	@Success		200	{object}	fiber.Map	"Health Practitioner deleted successfully"
+//	@Failure		404	{object}	fiber.Map	"HealthPractitioner not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when deleting HealthPractitioner"
 //	@Router			/health-practitioner/{id} [delete]
 func (h *HealthPractitionerController) DeleteHealthPractitionerByID(c *fiber.Ctx) error {
 	// Get the HealthPractitioner ID from the route parameters
@@ -302,8 +302,8 @@ func (h *HealthPractitionerController) DeleteHealthPractitionerByID(c *fiber.Ctx
 //	@Tags			Health practitioners
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Health practitioners retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve HealthPractitioners"
+//	@Success		200	{object}	fiber.Map	"Health practitioners retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve HealthPractitioners"
 //	@Router			/health-practitioners/search [get]
 func (h *HealthPractitionerController) SearchHealthPractitioners(c *fiber.Ctx) error {
 	// Call the repository function to get paginated search results

@@ -1,0 +1,70 @@
+
+
+@hostname = http://127.0.0.1:8085/api
+# @name tokenAPI
+POST {{hostname}}/login
+content-type: application/json
+
+{
+    "identifier": "Admin",
+    "password":"Admin123"
+}
+
+###
+GET {{hostname}}/me
+Authorization: Bearer {{bearer}}
+
+###
+@bearer = {{tokenAPI.response.body.access_token}}
+@bearer_refresh = {{tokenAPI.response.body.refresh_token}}
+GET {{hostname}}/police-officers?page=1&limit=5
+Authorization: Bearer {{bearer}}
+
+###
+POST {{hostname}}/police-officer
+Authorization: Bearer {{bearer}}
+Content-Type: application/json
+
+{
+	"first_name": "Mugabenn",
+    "last_name": "Johnnhn",
+    "rank": "ASP",
+    "badge_no": "B00193",
+    "phone": "07812663937",
+    "post_id": 1,
+    "username": "MugmkJ",
+    "email": "mugamkbejohn@example.com",
+	"password": "Admin123",
+    "role_ids": [2]
+}
+
+###
+PUT {{hostname}}/police-officer/5
+Authorization: Bearer {{bearer}}
+Content-Type: application/json
+
+{
+	"first_name": "Mugabe",
+    "last_name": "JohnNY",
+    "rank": "ASP",
+    "badge_no": "B00193",
+    "phone": "07812663937",
+    "post_id": 1,
+    "email": "mugabejohn@example.com",
+	"password": "Admink123",
+    "role_ids": [3]
+}
+
+###
+# Get total carexpense by ID
+GET {{hostname}}/police-officer/1
+Authorization: Bearer {{bearer}}
+
+
+###
+GET {{hostname}}/police-officers/search?first_name=mu&last_name=jo&badge_no=b0&username=mu&post_id=1
+Authorization: Bearer {{bearer}}
+
+###
+DELETE {{hostname}}/police-officer/2
+Authorization: Bearer {{bearer}}

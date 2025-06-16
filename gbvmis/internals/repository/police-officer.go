@@ -16,6 +16,8 @@ type PoliceOfficerRepository interface {
 	GetPoliceOfficerByID(id string) (models.PoliceOfficer, error)
 	DeleteByID(id string) error
 	SearchPaginatedPoliceOfficers(c *fiber.Ctx) (*utils.Pagination, []models.PoliceOfficer, error)
+	FindRolesByIDs(ids []uint, out *[]*models.Role) error
+	UpdateOfficerRoles(officer *models.PoliceOfficer, roles []*models.Role) error
 }
 
 type PoliceOfficerRepositoryImpl struct {
@@ -33,7 +35,7 @@ func (r *PoliceOfficerRepositoryImpl) CreatePoliceOfficer(policeOfficer *models.
 }
 
 func (r *PoliceOfficerRepositoryImpl) GetPaginatedPoliceOfficers(c *fiber.Ctx) (*utils.Pagination, []models.PoliceOfficer, error) {
-	pagination, policeOfficers, err := utils.Paginate(c, r.db, models.PoliceOfficer{})
+	pagination, policeOfficers, err := utils.Paginate(c, r.db.Preload("Roles"), models.PoliceOfficer{})
 	if err != nil {
 		return nil, nil, err
 	}
@@ -42,7 +44,7 @@ func (r *PoliceOfficerRepositoryImpl) GetPaginatedPoliceOfficers(c *fiber.Ctx) (
 
 func (r *PoliceOfficerRepositoryImpl) GetPoliceOfficerByID(id string) (models.PoliceOfficer, error) {
 	var policeOfficer models.PoliceOfficer
-	err := r.db.First(&policeOfficer, "id = ?", id).Error
+	err := r.db.Preload("Roles").First(&policeOfficer, "id = ?", id).Error
 	return policeOfficer, err
 }
 
@@ -67,7 +69,7 @@ func (r *PoliceOfficerRepositoryImpl) SearchPaginatedPoliceOfficers(c *fiber.Ctx
 	PostID := c.Query("post_id")
 
 	// Start building the query
-	query := r.db.Model(&models.PoliceOfficer{})
+	query := r.db.Preload("Roles").Model(&models.PoliceOfficer{})
 
 	// Apply filters based on provided parameters
 	if FirstName != "" {
@@ -96,4 +98,12 @@ func (r *PoliceOfficerRepositoryImpl) SearchPaginatedPoliceOfficers(c *fiber.Ctx
 	}
 
 	return &pagination, policeOfficers, nil
+}
+
+func (r *PoliceOfficerRepositoryImpl) FindRolesByIDs(ids []uint, out *[]*models.Role) error {
+	return r.db.Where("id IN ?", ids).Find(out).Error
+}
+
+func (r *PoliceOfficerRepositoryImpl) UpdateOfficerRoles(officer *models.PoliceOfficer, roles []*models.Role) error {
+	return r.db.Model(officer).Association("Roles").Replace(roles)
 }

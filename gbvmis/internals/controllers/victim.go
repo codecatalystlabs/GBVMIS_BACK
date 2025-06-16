@@ -27,9 +27,9 @@ func NewVictimController(repo repository.VictimRepository) *VictimController {
 //	@Accept			json
 //	@Produce		json
 //	@Param			victim	body		models.Victim	true	"Victim data to create"
-//	@Success		201		{object}	fiber.Map	"Successfully created victim record"
-//	@Failure		400		{object}	fiber.Map	"Bad request due to invalid input"
-//	@Failure		500		{object}	fiber.Map	"Server error when creating victim"
+//	@Success		201		{object}	fiber.Map		"Successfully created victim record"
+//	@Failure		400		{object}	fiber.Map		"Bad request due to invalid input"
+//	@Failure		500		{object}	fiber.Map		"Server error when creating victim"
 //	@Router			/victims [post]
 func (h *VictimController) CreateVictim(c *fiber.Ctx) error {
 	// Initialize a new victim instance
@@ -70,8 +70,8 @@ func (h *VictimController) CreateVictim(c *fiber.Ctx) error {
 //	@Tags			Victims
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Victims retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve victims"
+//	@Success		200	{object}	fiber.Map	"Victims retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve victims"
 //	@Router			/victims [get]
 func (h *VictimController) GetAllVictims(c *fiber.Ctx) error {
 	pagination, victims, err := h.repo.GetPaginatedVictims(c)
@@ -106,10 +106,10 @@ func (h *VictimController) GetAllVictims(c *fiber.Ctx) error {
 //	@Tags			Victims
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Victim ID"
-//	@Success		200		{object}	fiber.Map	"Victim retrieved successfully"
-//	@Failure		404		{object}	fiber.Map	"Victim not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when retrieving victim"
+//	@Param			id	path		string		true	"Victim ID"
+//	@Success		200	{object}	fiber.Map	"Victim retrieved successfully"
+//	@Failure		404	{object}	fiber.Map	"Victim not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when retrieving victim"
 //	@Router			/victim/{id} [get]
 func (h *VictimController) GetSingleVictim(c *fiber.Ctx) error {
 	// Get the Victim ID from the route parameters
@@ -188,12 +188,12 @@ type UpdateVictimPayload struct {
 //	@Tags			Victims
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Victim ID"
+//	@Param			id		path		string				true	"Victim ID"
 //	@Param			victim	body		UpdateVictimPayload	true	"Victim data to update"
-//	@Success		200		{object}	fiber.Map	"Victim updated successfully"
-//	@Failure		400		{object}	fiber.Map	"Invalid input or empty request body"
-//	@Failure		404		{object}	fiber.Map	"Victim not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when updating victim"
+//	@Success		200		{object}	fiber.Map			"Victim updated successfully"
+//	@Failure		400		{object}	fiber.Map			"Invalid input or empty request body"
+//	@Failure		404		{object}	fiber.Map			"Victim not found"
+//	@Failure		500		{object}	fiber.Map			"Server error when updating victim"
 //	@Router			/victim/{id} [put]
 func (h *VictimController) UpdateVictim(c *fiber.Ctx) error {
 	// Get the victim ID from the route parameters
@@ -290,10 +290,10 @@ func (h *VictimController) UpdateVictim(c *fiber.Ctx) error {
 //	@Tags			Victims
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Victim ID"
-//	@Success		200		{object}	fiber.Map	"Victim deleted successfully"
-//	@Failure		404		{object}	fiber.Map	"Victim not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when deleting victim"
+//	@Param			id	path		string		true	"Victim ID"
+//	@Success		200	{object}	fiber.Map	"Victim deleted successfully"
+//	@Failure		404	{object}	fiber.Map	"Victim not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when deleting victim"
 //	@Router			/victim/{id} [delete]
 func (h *VictimController) DeleteVictimByID(c *fiber.Ctx) error {
 	// Get the Victim ID from the route parameters
@@ -341,8 +341,8 @@ func (h *VictimController) DeleteVictimByID(c *fiber.Ctx) error {
 //	@Tags			Victims
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Victims retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve victims"
+//	@Success		200	{object}	fiber.Map	"Victims retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve victims"
 //	@Router			/victims/search [get]
 func (h *VictimController) SearchVictims(c *fiber.Ctx) error {
 	// Call the repository function to get paginated search results

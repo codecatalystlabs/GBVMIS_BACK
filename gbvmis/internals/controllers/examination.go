@@ -27,9 +27,9 @@ func NewExaminationController(repo repository.ExaminationRepository) *Examinatio
 //	@Accept			json
 //	@Produce		json
 //	@Param			examination	body		models.Examination	true	"Examination data to create"
-//	@Success		201		{object}	fiber.Map	"Successfully created examination record"
-//	@Failure		400		{object}	fiber.Map	"Bad request due to invalid input"
-//	@Failure		500		{object}	fiber.Map	"Server error when creating examination"
+//	@Success		201			{object}	fiber.Map			"Successfully created examination record"
+//	@Failure		400			{object}	fiber.Map			"Bad request due to invalid input"
+//	@Failure		500			{object}	fiber.Map			"Server error when creating examination"
 //	@Router			/examination [post]
 func (h *ExaminationController) CreateExamination(c *fiber.Ctx) error {
 	// Initialize a new examination instance
@@ -70,8 +70,8 @@ func (h *ExaminationController) CreateExamination(c *fiber.Ctx) error {
 //	@Tags			Examinations
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Examinations retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve examinations"
+//	@Success		200	{object}	fiber.Map	"Examinations retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve examinations"
 //	@Router			/examinations [get]
 func (h *ExaminationController) GetAllExaminations(c *fiber.Ctx) error {
 	pagination, examinations, err := h.repo.GetPaginatedExaminations(c)
@@ -106,10 +106,10 @@ func (h *ExaminationController) GetAllExaminations(c *fiber.Ctx) error {
 //	@Tags			Examinations
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Examination ID"
-//	@Success		200		{object}	fiber.Map	"Examination retrieved successfully"
-//	@Failure		404		{object}	fiber.Map	"Examination not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when retrieving examination"
+//	@Param			id	path		string		true	"Examination ID"
+//	@Success		200	{object}	fiber.Map	"Examination retrieved successfully"
+//	@Failure		404	{object}	fiber.Map	"Examination not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when retrieving examination"
 //	@Router			/examination/{id} [get]
 func (h *ExaminationController) GetSingleExamination(c *fiber.Ctx) error {
 	// Get the Examination ID from the route parameters
@@ -161,12 +161,12 @@ type UpdateExaminationPayload struct {
 //	@Tags			Examinations
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Examination ID"
+//	@Param			id			path		string						true	"Examination ID"
 //	@Param			examination	body		UpdateExaminationPayload	true	"Examination data to update"
-//	@Success		200		{object}	fiber.Map	"Examination updated successfully"
-//	@Failure		400		{object}	fiber.Map	"Invalid input or empty request body"
-//	@Failure		404		{object}	fiber.Map	"Examination not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when updating examination"
+//	@Success		200			{object}	fiber.Map					"Examination updated successfully"
+//	@Failure		400			{object}	fiber.Map					"Invalid input or empty request body"
+//	@Failure		404			{object}	fiber.Map					"Examination not found"
+//	@Failure		500			{object}	fiber.Map					"Server error when updating examination"
 //	@Router			/examination/{id} [put]
 func (h *ExaminationController) UpdateExamination(c *fiber.Ctx) error {
 	// Get the examination ID from the route parameters
@@ -263,10 +263,10 @@ func (h *ExaminationController) UpdateExamination(c *fiber.Ctx) error {
 //	@Tags			Examinations
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Examination ID"
-//	@Success		200		{object}	fiber.Map	"Examination deleted successfully"
-//	@Failure		404		{object}	fiber.Map	"Examination not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when deleting examination"
+//	@Param			id	path		string		true	"Examination ID"
+//	@Success		200	{object}	fiber.Map	"Examination deleted successfully"
+//	@Failure		404	{object}	fiber.Map	"Examination not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when deleting examination"
 //	@Router			/examination/{id} [delete]
 func (h *ExaminationController) DeleteExaminationByID(c *fiber.Ctx) error {
 	// Get the Examination ID from the route parameters
@@ -314,8 +314,8 @@ func (h *ExaminationController) DeleteExaminationByID(c *fiber.Ctx) error {
 //	@Tags			Examinations
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Examinations retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve examinations"
+//	@Success		200	{object}	fiber.Map	"Examinations retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve examinations"
 //	@Router			/examinations/search [get]
 func (h *ExaminationController) SearchExaminations(c *fiber.Ctx) error {
 	// Call the repository function to get paginated search results

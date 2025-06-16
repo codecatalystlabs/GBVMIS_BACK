@@ -27,9 +27,9 @@ func NewPolicePostController(repo repository.PolicePostRepository) *PolicePostCo
 //	@Accept			json
 //	@Produce		json
 //	@Param			Policepost	body		models.PolicePost	true	"PolicePost data to create"
-//	@Success		201		{object}	fiber.Map	"Successfully created police post record"
-//	@Failure		400		{object}	fiber.Map	"Bad request due to invalid input"
-//	@Failure		500		{object}	fiber.Map	"Server error when creating police post"
+//	@Success		201			{object}	fiber.Map			"Successfully created police post record"
+//	@Failure		400			{object}	fiber.Map			"Bad request due to invalid input"
+//	@Failure		500			{object}	fiber.Map			"Server error when creating police post"
 //	@Router			/police-post [post]
 func (h *PolicePostController) CreatePolicePost(c *fiber.Ctx) error {
 	// Initialize a new police post instance
@@ -70,8 +70,8 @@ func (h *PolicePostController) CreatePolicePost(c *fiber.Ctx) error {
 //	@Tags			Police Posts
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"policePosts retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve policePosts"
+//	@Success		200	{object}	fiber.Map	"policePosts retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve policePosts"
 //	@Router			/police-posts [get]
 func (h *PolicePostController) GetAllPolicePosts(c *fiber.Ctx) error {
 	pagination, policePosts, err := h.repo.GetPaginatedPolicePosts(c)
@@ -106,10 +106,10 @@ func (h *PolicePostController) GetAllPolicePosts(c *fiber.Ctx) error {
 //	@Tags			Police Posts
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"PolicePost ID"
-//	@Success		200		{object}	fiber.Map	"PolicePost retrieved successfully"
-//	@Failure		404		{object}	fiber.Map	"PolicePost not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when retrieving PolicePost"
+//	@Param			id	path		string		true	"PolicePost ID"
+//	@Success		200	{object}	fiber.Map	"PolicePost retrieved successfully"
+//	@Failure		404	{object}	fiber.Map	"PolicePost not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when retrieving PolicePost"
 //	@Router			/police-post/{id} [get]
 func (h *PolicePostController) GetSinglePolicePost(c *fiber.Ctx) error {
 	// Get the policePost ID from the route parameters
@@ -155,12 +155,12 @@ type UpdatePolicePostPayload struct {
 //	@Tags			Police Posts
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"PolicePost ID"
+//	@Param			id			path		string					true	"PolicePost ID"
 //	@Param			policePost	body		UpdatePolicePostPayload	true	"PolicePost data to update"
-//	@Success		200		{object}	fiber.Map	"PolicePost updated successfully"
-//	@Failure		400		{object}	fiber.Map	"Invalid input or empty request body"
-//	@Failure		404		{object}	fiber.Map	"PolicePost not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when updating policePost"
+//	@Success		200			{object}	fiber.Map				"PolicePost updated successfully"
+//	@Failure		400			{object}	fiber.Map				"Invalid input or empty request body"
+//	@Failure		404			{object}	fiber.Map				"PolicePost not found"
+//	@Failure		500			{object}	fiber.Map				"Server error when updating policePost"
 //	@Router			/police-post/{id} [put]
 func (h *PolicePostController) UpdatePolicePost(c *fiber.Ctx) error {
 	// Get the policePost ID from the route parameters
@@ -239,10 +239,10 @@ func (h *PolicePostController) UpdatePolicePost(c *fiber.Ctx) error {
 //	@Tags			Police Posts
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"PolicePost ID"
-//	@Success		200		{object}	fiber.Map	"PolicePost deleted successfully"
-//	@Failure		404		{object}	fiber.Map	"PolicePost not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when deleting policePost"
+//	@Param			id	path		string		true	"PolicePost ID"
+//	@Success		200	{object}	fiber.Map	"PolicePost deleted successfully"
+//	@Failure		404	{object}	fiber.Map	"PolicePost not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when deleting policePost"
 //	@Router			/police-post/{id} [delete]
 func (h *PolicePostController) DeletePolicePostByID(c *fiber.Ctx) error {
 	// Get the PolicePost ID from the route parameters
@@ -290,8 +290,8 @@ func (h *PolicePostController) DeletePolicePostByID(c *fiber.Ctx) error {
 //	@Tags			Police Posts
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"PolicePosts retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve PolicePosts"
+//	@Success		200	{object}	fiber.Map	"PolicePosts retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve PolicePosts"
 //	@Router			/police-posts/search [get]
 func (h *PolicePostController) SearchPolicePosts(c *fiber.Ctx) error {
 	// Call the repository function to get paginated search results

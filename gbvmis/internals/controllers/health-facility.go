@@ -27,9 +27,9 @@ func NewHealthFacilityController(repo repository.HealthFacilityRepository) *Heal
 //	@Accept			json
 //	@Produce		json
 //	@Param			HealthFacility	body		models.HealthFacility	true	"HealthFacility data to create"
-//	@Success		201		{object}	fiber.Map	"Successfully created health facility record"
-//	@Failure		400		{object}	fiber.Map	"Bad request due to invalid input"
-//	@Failure		500		{object}	fiber.Map	"Server error when creating health facility"
+//	@Success		201				{object}	fiber.Map				"Successfully created health facility record"
+//	@Failure		400				{object}	fiber.Map				"Bad request due to invalid input"
+//	@Failure		500				{object}	fiber.Map				"Server error when creating health facility"
 //	@Router			/health-facility [post]
 func (h *HealthFacilityController) CreateHealthFacility(c *fiber.Ctx) error {
 	// Initialize a new health facility instance
@@ -70,8 +70,8 @@ func (h *HealthFacilityController) CreateHealthFacility(c *fiber.Ctx) error {
 //	@Tags			Health facilities
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Health facilities retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve health facilities"
+//	@Success		200	{object}	fiber.Map	"Health facilities retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve health facilities"
 //	@Router			/health-facilities [get]
 func (h *HealthFacilityController) GetAllHealthFacilities(c *fiber.Ctx) error {
 	pagination, healthFacilities, err := h.repo.GetPaginatedHealthFacilities(c)
@@ -106,10 +106,10 @@ func (h *HealthFacilityController) GetAllHealthFacilities(c *fiber.Ctx) error {
 //	@Tags			Health facilities
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"HealthFacility ID"
-//	@Success		200		{object}	fiber.Map	"Health facility retrieved successfully"
-//	@Failure		404		{object}	fiber.Map	"Health facility not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when retrieving Health facility"
+//	@Param			id	path		string		true	"HealthFacility ID"
+//	@Success		200	{object}	fiber.Map	"Health facility retrieved successfully"
+//	@Failure		404	{object}	fiber.Map	"Health facility not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when retrieving Health facility"
 //	@Router			/health-facility/{id} [get]
 func (h *HealthFacilityController) GetSingleHealthFacility(c *fiber.Ctx) error {
 	// Get the healthFacility ID from the route parameters
@@ -155,12 +155,12 @@ type UpdateHealthFacilityPayload struct {
 //	@Tags			Health facilities
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Health facility ID"
+//	@Param			id				path		string						true	"Health facility ID"
 //	@Param			HealthFacility	body		UpdateHealthFacilityPayload	true	"Health facility data to update"
-//	@Success		200		{object}	fiber.Map	"Health facility updated successfully"
-//	@Failure		400		{object}	fiber.Map	"Invalid input or empty request body"
-//	@Failure		404		{object}	fiber.Map	"HealthFacility not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when updating Health facility"
+//	@Success		200				{object}	fiber.Map					"Health facility updated successfully"
+//	@Failure		400				{object}	fiber.Map					"Invalid input or empty request body"
+//	@Failure		404				{object}	fiber.Map					"HealthFacility not found"
+//	@Failure		500				{object}	fiber.Map					"Server error when updating Health facility"
 //	@Router			/health-facility/{id} [put]
 func (h *HealthFacilityController) UpdateHealthFacility(c *fiber.Ctx) error {
 	// Get the HealthFacility ID from the route parameters
@@ -239,10 +239,10 @@ func (h *HealthFacilityController) UpdateHealthFacility(c *fiber.Ctx) error {
 //	@Tags			Health facilities
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"HealthFacility ID"
-//	@Success		200		{object}	fiber.Map	"Health facility deleted successfully"
-//	@Failure		404		{object}	fiber.Map	"HealthFacility not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when deleting HealthFacility"
+//	@Param			id	path		string		true	"HealthFacility ID"
+//	@Success		200	{object}	fiber.Map	"Health facility deleted successfully"
+//	@Failure		404	{object}	fiber.Map	"HealthFacility not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when deleting HealthFacility"
 //	@Router			/health-facility/{id} [delete]
 func (h *HealthFacilityController) DeleteHealthFacilityByID(c *fiber.Ctx) error {
 	// Get the HealthFacility ID from the route parameters
@@ -290,8 +290,8 @@ func (h *HealthFacilityController) DeleteHealthFacilityByID(c *fiber.Ctx) error 
 //	@Tags			Health facilities
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Health facilities retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve HealthFacilities"
+//	@Success		200	{object}	fiber.Map	"Health facilities retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve HealthFacilities"
 //	@Router			/health-facilities/search [get]
 func (h *HealthFacilityController) SearchHealthFacilities(c *fiber.Ctx) error {
 	// Call the repository function to get paginated search results

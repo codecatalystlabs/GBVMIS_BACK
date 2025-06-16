@@ -71,8 +71,8 @@ func (h *CaseController) CreateCase(c *fiber.Ctx) error {
 //	@Tags			Cases
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Cases retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve cases"
+//	@Success		200	{object}	fiber.Map	"Cases retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve cases"
 //	@Router			/cases [get]
 func (h *CaseController) GetAllCases(c *fiber.Ctx) error {
 	pagination, cases, err := h.repo.GetPaginatedCases(c)
@@ -107,10 +107,10 @@ func (h *CaseController) GetAllCases(c *fiber.Ctx) error {
 //	@Tags			Cases
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Case ID"
-//	@Success		200		{object}	fiber.Map	"Case retrieved successfully"
-//	@Failure		404		{object}	fiber.Map	"Case not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when retrieving case"
+//	@Param			id	path		string		true	"Case ID"
+//	@Success		200	{object}	fiber.Map	"Case retrieved successfully"
+//	@Failure		404	{object}	fiber.Map	"Case not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when retrieving case"
 //	@Router			/case/{id} [get]
 func (h *CaseController) GetSingleCase(c *fiber.Ctx) error {
 	// Get the Case ID from the route parameters
@@ -160,12 +160,12 @@ type UpdateCasePayload struct {
 //	@Tags			Cases
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Case ID"
+//	@Param			id		path		string				true	"Case ID"
 //	@Param			case	body		UpdateCasePayload	true	"Case data to update"
-//	@Success		200		{object}	fiber.Map	"Case updated successfully"
-//	@Failure		400		{object}	fiber.Map	"Invalid input or empty request body"
-//	@Failure		404		{object}	fiber.Map	"Case not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when updating case"
+//	@Success		200		{object}	fiber.Map			"Case updated successfully"
+//	@Failure		400		{object}	fiber.Map			"Invalid input or empty request body"
+//	@Failure		404		{object}	fiber.Map			"Case not found"
+//	@Failure		500		{object}	fiber.Map			"Server error when updating case"
 //	@Router			/case/{id} [put]
 func (h *CaseController) UpdateCase(c *fiber.Ctx) error {
 	// Get the case ID from the route parameters
@@ -256,10 +256,10 @@ func (h *CaseController) UpdateCase(c *fiber.Ctx) error {
 //	@Tags			Cases
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string	true	"Case ID"
-//	@Success		200		{object}	fiber.Map	"Case deleted successfully"
-//	@Failure		404		{object}	fiber.Map	"Case not found"
-//	@Failure		500		{object}	fiber.Map	"Server error when deleting case"
+//	@Param			id	path		string		true	"Case ID"
+//	@Success		200	{object}	fiber.Map	"Case deleted successfully"
+//	@Failure		404	{object}	fiber.Map	"Case not found"
+//	@Failure		500	{object}	fiber.Map	"Server error when deleting case"
 //	@Router			/case/{id} [delete]
 func (h *CaseController) DeleteCaseByID(c *fiber.Ctx) error {
 	// Get the Case ID from the route parameters
@@ -307,8 +307,8 @@ func (h *CaseController) DeleteCaseByID(c *fiber.Ctx) error {
 //	@Tags			Cases
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	fiber.Map	"Cases retrieved successfully"
-//	@Failure		500		{object}	fiber.Map	"Failed to retrieve Cases"
+//	@Success		200	{object}	fiber.Map	"Cases retrieved successfully"
+//	@Failure		500	{object}	fiber.Map	"Failed to retrieve Cases"
 //	@Router			/cases/search [get]
 func (h *CaseController) SearchCases(c *fiber.Ctx) error {
 	// Call the repository function to get paginated search results
