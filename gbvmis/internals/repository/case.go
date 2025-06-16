@@ -16,6 +16,8 @@ type CaseRepository interface {
 	GetCaseByID(id string) (models.Case, error)
 	DeleteByID(id string) error
 	SearchPaginatedCases(c *fiber.Ctx) (*utils.Pagination, []models.Case, error)
+	FindVictimsByIDs(ids []uint, victims *[]models.Victim) error
+	BeginTransaction() *gorm.DB
 }
 
 type CaseRepositoryImpl struct {
@@ -91,4 +93,12 @@ func (r *CaseRepositoryImpl) SearchPaginatedCases(c *fiber.Ctx) (*utils.Paginati
 	}
 
 	return &pagination, cases, nil
+}
+
+func (r *CaseRepositoryImpl) FindVictimsByIDs(ids []uint, victims *[]models.Victim) error {
+	return r.db.Where("id IN ?", ids).Find(victims).Error
+}
+
+func (r *CaseRepositoryImpl) BeginTransaction() *gorm.DB {
+	return r.db.Begin()
 }

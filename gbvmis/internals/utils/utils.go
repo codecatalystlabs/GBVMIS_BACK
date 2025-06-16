@@ -164,3 +164,19 @@ func StrToIntPointer(value string) *int {
 	}
 	return &result
 }
+
+func ErrorResponse(message string, err error) fiber.Map {
+	return fiber.Map{
+		"status":  "error",
+		"message": message,
+		"data":    err.Error(),
+	}
+}
+
+func SuccessResponse(message string, data interface{}) fiber.Map {
+	return fiber.Map{
+		"status":  "success",
+		"message": message,
+		"data":    data,
+	}
+}

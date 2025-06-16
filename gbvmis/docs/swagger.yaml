@@ -1,5 +1,55 @@
 basePath: /
 definitions:
+  controllers.ChargePayload:
+    properties:
+      charge_title:
+        type: string
+      description:
+        type: string
+      severity:
+        type: string
+    type: object
+  controllers.ChargeUpdatePayload:
+    properties:
+      charge_title:
+        type: string
+      description:
+        type: string
+      severity:
+        type: string
+    type: object
+  controllers.CreateCasePayload:
+    properties:
+      case_number:
+        type: string
+      charges:
+        description: Optional inline
+        items:
+          $ref: '#/definitions/controllers.ChargePayload'
+        type: array
+      date_opened:
+        type: string
+      description:
+        type: string
+      officer_id:
+        type: integer
+      police_post_id:
+        type: integer
+      status:
+        type: string
+      suspect_id:
+        type: integer
+      title:
+        type: string
+      victim_ids:
+        description: For existing victims
+        items:
+          type: integer
+        type: array
+    required:
+    - case_number
+    - title
+    type: object
   controllers.CreateOfficerPayload:
     properties:
       badge_no:
@@ -39,6 +89,11 @@ definitions:
     type: object
   controllers.UpdateCasePayload:
     properties:
+      charges:
+        description: <== new field
+        items:
+          $ref: '#/definitions/controllers.ChargeUpdatePayload'
+        type: array
       date_opened:
         type: string
       description:
@@ -468,7 +523,7 @@ paths:
         name: case
         required: true
         schema:
-          $ref: '#/definitions/models.Case'
+          $ref: '#/definitions/controllers.CreateCasePayload'
       produces:
       - application/json
       responses:

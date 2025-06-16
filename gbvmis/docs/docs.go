@@ -43,7 +43,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Case"
+                            "$ref": "#/definitions/controllers.CreateCasePayload"
                         }
                     }
                 ],
@@ -2547,6 +2547,81 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controllers.ChargePayload": {
+            "type": "object",
+            "properties": {
+                "charge_title": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "severity": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.ChargeUpdatePayload": {
+            "type": "object",
+            "properties": {
+                "charge_title": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "severity": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.CreateCasePayload": {
+            "type": "object",
+            "required": [
+                "case_number",
+                "title"
+            ],
+            "properties": {
+                "case_number": {
+                    "type": "string"
+                },
+                "charges": {
+                    "description": "Optional inline",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.ChargePayload"
+                    }
+                },
+                "date_opened": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "officer_id": {
+                    "type": "integer"
+                },
+                "police_post_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "suspect_id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "victim_ids": {
+                    "description": "For existing victims",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "controllers.CreateOfficerPayload": {
             "type": "object",
             "required": [
@@ -2601,6 +2676,13 @@ const docTemplate = `{
         "controllers.UpdateCasePayload": {
             "type": "object",
             "properties": {
+                "charges": {
+                    "description": "\u003c== new field",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.ChargeUpdatePayload"
+                    }
+                },
                 "date_opened": {
                     "type": "string"
                 },
