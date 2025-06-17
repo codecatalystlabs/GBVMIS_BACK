@@ -842,7 +842,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.HealthFacility"
+                            "$ref": "#/definitions/controllers.CreateHealthFacilityPayload"
                         }
                     }
                 ],
@@ -2619,6 +2619,23 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                }
+            }
+        },
+        "controllers.CreateHealthFacilityPayload": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

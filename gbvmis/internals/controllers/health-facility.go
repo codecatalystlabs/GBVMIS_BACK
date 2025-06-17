@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gbvmis/internals/models"
 	"gbvmis/internals/repository"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -17,6 +18,51 @@ func NewHealthFacilityController(repo repository.HealthFacilityRepository) *Heal
 	return &HealthFacilityController{repo: repo}
 }
 
+type CreateHealthFacilityPayload struct {
+	Name     string `json:"name" validate:"required"`
+	Location string `json:"location"`
+	Contact  string `json:"contact"`
+}
+
+type HealthFacilityResponse struct {
+	ID            uint                         `json:"id"`
+	Name          string                       `json:"name"`
+	Location      string                       `json:"location"`
+	Contact       string                       `json:"contact"`
+	Practitioners []HealthPractitionerResponse `json:"practitioners"`
+	CreatedAt     time.Time                    `json:"created_at"`
+}
+
+type HealthPractitionerResponse struct {
+	ID         uint   `json:"id"`
+	FirstName  string `json:"first_name"`
+	LastName   string `json:"last_name"`
+	Profession string `json:"profession"`
+	Phone      string `json:"phone"`
+}
+
+func ConvertToHealthFacilityResponse(hf models.HealthFacility) HealthFacilityResponse {
+	var practitioners []HealthPractitionerResponse
+	for _, p := range hf.Practitioners {
+		practitioners = append(practitioners, HealthPractitionerResponse{
+			ID:         p.ID,
+			FirstName:  p.FirstName,
+			LastName:   p.LastName,
+			Profession: p.Profession,
+			Phone:      p.Phone,
+		})
+	}
+
+	return HealthFacilityResponse{
+		ID:            hf.ID,
+		Name:          hf.Name,
+		Location:      hf.Location,
+		Contact:       hf.Contact,
+		Practitioners: practitioners,
+		CreatedAt:     hf.CreatedAt,
+	}
+}
+
 // ================================
 
 // CreateHealthFacility godoc
@@ -26,17 +72,14 @@ func NewHealthFacilityController(repo repository.HealthFacilityRepository) *Heal
 //	@Tags			Health facilities
 //	@Accept			json
 //	@Produce		json
-//	@Param			HealthFacility	body		models.HealthFacility	true	"HealthFacility data to create"
-//	@Success		201				{object}	fiber.Map				"Successfully created health facility record"
-//	@Failure		400				{object}	fiber.Map				"Bad request due to invalid input"
-//	@Failure		500				{object}	fiber.Map				"Server error when creating health facility"
+//	@Param			HealthFacility	body		CreateHealthFacilityPayload	true	"HealthFacility data to create"
+//	@Success		201				{object}	fiber.Map					"Successfully created health facility record"
+//	@Failure		400				{object}	fiber.Map					"Bad request due to invalid input"
+//	@Failure		500				{object}	fiber.Map					"Server error when creating health facility"
 //	@Router			/health-facility [post]
 func (h *HealthFacilityController) CreateHealthFacility(c *fiber.Ctx) error {
-	// Initialize a new health facility instance
-	healthFacility := new(models.HealthFacility)
-
-	// Parse the request body into the HealthFacility instance
-	if err := c.BodyParser(healthFacility); err != nil {
+	var payload CreateHealthFacilityPayload
+	if err := c.BodyParser(&payload); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Invalid input provided",
@@ -44,8 +87,13 @@ func (h *HealthFacilityController) CreateHealthFacility(c *fiber.Ctx) error {
 		})
 	}
 
-	// Attempt to create the healthFacility record using the repository
-	if err := h.repo.CreateHealthFacility(healthFacility); err != nil {
+	hf := &models.HealthFacility{
+		Name:     payload.Name,
+		Location: payload.Location,
+		Contact:  payload.Contact,
+	}
+
+	if err := h.repo.CreateHealthFacility(hf); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Failed to create health facility",
@@ -53,11 +101,12 @@ func (h *HealthFacilityController) CreateHealthFacility(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return the newly created healthFacility record
+	response := ConvertToHealthFacilityResponse(*hf)
+
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"status":  "success",
-		"message": "health facility created successfully",
-		"data":    healthFacility,
+		"message": "Health facility created successfully",
+		"data":    response,
 	})
 }
 
@@ -83,11 +132,15 @@ func (h *HealthFacilityController) GetAllHealthFacilities(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return the paginated response
+	var responses []HealthFacilityResponse
+	for _, hf := range healthFacilities {
+		responses = append(responses, ConvertToHealthFacilityResponse(hf))
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status":  "success",
 		"message": "Health facilities retrieved successfully",
-		"data":    healthFacilities,
+		"data":    responses,
 		"pagination": fiber.Map{
 			"total_items":  pagination.TotalItems,
 			"total_pages":  pagination.TotalPages,
@@ -135,7 +188,7 @@ func (h *HealthFacilityController) GetSingleHealthFacility(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status":  "success",
 		"message": "healthFacility and associated data retrieved successfully",
-		"data":    healthFacility,
+		"data":    ConvertToHealthFacilityResponse(healthFacility),
 	})
 }
 
@@ -304,11 +357,20 @@ func (h *HealthFacilityController) SearchHealthFacilities(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return the response with pagination details
-	return c.Status(200).JSON(fiber.Map{
-		"status":     "success",
-		"message":    "HealthFacilities retrieved successfully",
-		"pagination": pagination,
-		"data":       healthFacilities,
+	var responses []HealthFacilityResponse
+	for _, hf := range healthFacilities {
+		responses = append(responses, ConvertToHealthFacilityResponse(hf))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status":  "success",
+		"message": "Health facilities retrieved successfully",
+		"data":    responses,
+		"pagination": fiber.Map{
+			"total_items":  pagination.TotalItems,
+			"total_pages":  pagination.TotalPages,
+			"current_page": pagination.CurrentPage,
+			"limit":        pagination.ItemsPerPage,
+		},
 	})
 }

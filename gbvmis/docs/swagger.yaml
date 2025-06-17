@@ -50,6 +50,17 @@ definitions:
     - case_number
     - title
     type: object
+  controllers.CreateHealthFacilityPayload:
+    properties:
+      contact:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
   controllers.CreateOfficerPayload:
     properties:
       badge_no:
@@ -1073,7 +1084,7 @@ paths:
         name: HealthFacility
         required: true
         schema:
-          $ref: '#/definitions/models.HealthFacility'
+          $ref: '#/definitions/controllers.CreateHealthFacilityPayload'
       produces:
       - application/json
       responses:
