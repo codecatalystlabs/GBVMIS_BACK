@@ -32,7 +32,7 @@ func (r *PolicePostRepositoryImpl) CreatePolicePost(policePost *models.PolicePos
 }
 
 func (r *PolicePostRepositoryImpl) GetPaginatedPolicePosts(c *fiber.Ctx) (*utils.Pagination, []models.PolicePost, error) {
-	pagination, policePosts, err := utils.Paginate(c, r.db, models.PolicePost{})
+	pagination, policePosts, err := utils.Paginate(c, r.db.Preload("Officers"), models.PolicePost{})
 	if err != nil {
 		return nil, nil, err
 	}
@@ -41,7 +41,7 @@ func (r *PolicePostRepositoryImpl) GetPaginatedPolicePosts(c *fiber.Ctx) (*utils
 
 func (r *PolicePostRepositoryImpl) GetPolicePostByID(id string) (models.PolicePost, error) {
 	var policePost models.PolicePost
-	err := r.db.First(&policePost, "id = ?", id).Error
+	err := r.db.Preload("Officers").First(&policePost, "id = ?", id).Error
 	return policePost, err
 }
 
@@ -74,7 +74,7 @@ func (r *PolicePostRepositoryImpl) SearchPaginatedPolicePosts(c *fiber.Ctx) (*ut
 	}
 
 	// Call the pagination helper
-	pagination, policePosts, err := utils.Paginate(c, query, models.PolicePost{})
+	pagination, policePosts, err := utils.Paginate(c, query.Preload("Officers"), models.PolicePost{})
 	if err != nil {
 		return nil, nil, err
 	}
