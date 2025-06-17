@@ -87,6 +87,17 @@ definitions:
     - rank
     - username
     type: object
+  controllers.CreatePolicePostPayload:
+    properties:
+      contact:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
   controllers.UpdateCasePayload:
     properties:
       charges:
@@ -108,6 +119,11 @@ definitions:
         type: integer
       title:
         type: string
+      victim_ids:
+        description: NEW
+        items:
+          type: integer
+        type: array
     type: object
   controllers.UpdateChargePayload:
     properties:
@@ -1562,7 +1578,7 @@ paths:
         name: Policepost
         required: true
         schema:
-          $ref: '#/definitions/models.PolicePost'
+          $ref: '#/definitions/controllers.CreatePolicePostPayload'
       produces:
       - application/json
       responses:

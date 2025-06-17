@@ -1597,7 +1597,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.PolicePost"
+                            "$ref": "#/definitions/controllers.CreatePolicePostPayload"
                         }
                     }
                 ],
@@ -2673,6 +2673,23 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.CreatePolicePostPayload": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.UpdateCasePayload": {
             "type": "object",
             "properties": {
@@ -2703,6 +2720,13 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                },
+                "victim_ids": {
+                    "description": "NEW",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },

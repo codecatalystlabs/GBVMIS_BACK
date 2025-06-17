@@ -35,7 +35,7 @@ func (r *CaseRepositoryImpl) CreateCase(casee *models.Case) error {
 }
 
 func (r *CaseRepositoryImpl) GetPaginatedCases(c *fiber.Ctx) (*utils.Pagination, []models.Case, error) {
-	pagination, cases, err := utils.Paginate(c, r.db, models.Case{})
+	pagination, cases, err := utils.Paginate(c, r.db.Preload("Charges").Preload("Victims"), models.Case{})
 	if err != nil {
 		return nil, nil, err
 	}
@@ -44,7 +44,7 @@ func (r *CaseRepositoryImpl) GetPaginatedCases(c *fiber.Ctx) (*utils.Pagination,
 
 func (r *CaseRepositoryImpl) GetCaseByID(id string) (models.Case, error) {
 	var casee models.Case
-	err := r.db.First(&casee, "id = ?", id).Error
+	err := r.db.Preload("Charges").Preload("Victims").First(&casee, "id = ?", id).Error
 	return casee, err
 }
 
@@ -68,7 +68,7 @@ func (r *CaseRepositoryImpl) SearchPaginatedCases(c *fiber.Ctx) (*utils.Paginati
 	PolicePostID := c.Query("police_post_id")
 
 	// Start building the query
-	query := r.db.Model(&models.Charge{})
+	query := r.db.Preload("Charges").Preload("Victims").Model(&models.Charge{})
 
 	// Apply filters based on provided parameters
 	if CaseNumber != "" {

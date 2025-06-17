@@ -254,7 +254,8 @@ type UpdateCasePayload struct {
 	SuspectID    uint                  `json:"suspect_id"`
 	OfficerID    uint                  `json:"officer_id"`
 	PolicePostID uint                  `json:"police_post_id"`
-	Charges      []ChargeUpdatePayload `json:"charges"` // <== new field
+	Charges      []ChargeUpdatePayload `json:"charges"`    // <== new field
+	VictimIDs    []uint                `json:"victim_ids"` // NEW
 }
 
 func (p UpdateCasePayload) IsEmpty() bool {
@@ -265,7 +266,8 @@ func (p UpdateCasePayload) IsEmpty() bool {
 		p.OfficerID == 0 &&
 		p.PolicePostID == 0 &&
 		p.DateOpened.IsZero() &&
-		len(p.Charges) == 0
+		len(p.Charges) == 0 &&
+		len(p.VictimIDs) == 0
 }
 
 // UpdateCase godoc
@@ -385,6 +387,28 @@ func (h *CaseController) UpdateCase(c *fiber.Ctx) error {
 					"data":    err.Error(),
 				})
 			}
+		}
+	}
+
+	if len(payload.VictimIDs) > 0 {
+		var victims []models.Victim
+		if err := tx.Where("id IN ?", payload.VictimIDs).Find(&victims).Error; err != nil {
+			tx.Rollback()
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Invalid victim IDs",
+				"data":    err.Error(),
+			})
+		}
+
+		// Replace victims association
+		if err := tx.Model(caseRecord).Association("Victims").Replace(victims); err != nil {
+			tx.Rollback()
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Failed to update case victims",
+				"data":    err.Error(),
+			})
 		}
 	}
 

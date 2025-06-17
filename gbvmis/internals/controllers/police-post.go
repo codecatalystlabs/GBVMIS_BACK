@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gbvmis/internals/models"
 	"gbvmis/internals/repository"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -17,6 +18,57 @@ func NewPolicePostController(repo repository.PolicePostRepository) *PolicePostCo
 	return &PolicePostController{repo: repo}
 }
 
+type CreatePolicePostPayload struct {
+	Name     string `json:"name" validate:"required"`
+	Location string `json:"location"`
+	Contact  string `json:"contact"`
+}
+
+type PolicePostResponse struct {
+	ID        uint                        `json:"id"`
+	Name      string                      `json:"name"`
+	Location  string                      `json:"location"`
+	Contact   string                      `json:"contact"`
+	Officers  []PoliceOfficerPostResponse `json:"officers"`
+	CreatedAt time.Time                   `json:"created_at"`
+}
+
+type PoliceOfficerPostResponse struct {
+	ID        uint   `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Rank      string `json:"rank"`
+	BadgeNo   string `json:"badge_no"`
+	Phone     string `json:"phone"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+}
+
+func ConvertToPolicePostResponse(post models.PolicePost) PolicePostResponse {
+	var officers []PoliceOfficerPostResponse
+	for _, officer := range post.Officers {
+		officers = append(officers, PoliceOfficerPostResponse{
+			ID:        officer.ID,
+			FirstName: officer.FirstName,
+			LastName:  officer.LastName,
+			Rank:      officer.Rank,
+			BadgeNo:   officer.BadgeNo,
+			Phone:     officer.Phone,
+			Username:  officer.Username,
+			Email:     officer.Email,
+		})
+	}
+
+	return PolicePostResponse{
+		ID:        post.ID,
+		Name:      post.Name,
+		Location:  post.Location,
+		Contact:   post.Contact,
+		Officers:  officers,
+		CreatedAt: post.CreatedAt,
+	}
+}
+
 // ================================
 
 // CreatePolicePost godoc
@@ -26,17 +78,14 @@ func NewPolicePostController(repo repository.PolicePostRepository) *PolicePostCo
 //	@Tags			Police Posts
 //	@Accept			json
 //	@Produce		json
-//	@Param			Policepost	body		models.PolicePost	true	"PolicePost data to create"
-//	@Success		201			{object}	fiber.Map			"Successfully created police post record"
-//	@Failure		400			{object}	fiber.Map			"Bad request due to invalid input"
-//	@Failure		500			{object}	fiber.Map			"Server error when creating police post"
+//	@Param			Policepost	body		CreatePolicePostPayload	true	"PolicePost data to create"
+//	@Success		201			{object}	fiber.Map				"Successfully created police post record"
+//	@Failure		400			{object}	fiber.Map				"Bad request due to invalid input"
+//	@Failure		500			{object}	fiber.Map				"Server error when creating police post"
 //	@Router			/police-post [post]
 func (h *PolicePostController) CreatePolicePost(c *fiber.Ctx) error {
-	// Initialize a new police post instance
-	policePost := new(models.PolicePost)
-
-	// Parse the request body into the PolicePost instance
-	if err := c.BodyParser(policePost); err != nil {
+	var payload CreatePolicePostPayload
+	if err := c.BodyParser(&payload); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Invalid input provided",
@@ -44,8 +93,13 @@ func (h *PolicePostController) CreatePolicePost(c *fiber.Ctx) error {
 		})
 	}
 
-	// Attempt to create the policePost record using the repository
-	if err := h.repo.CreatePolicePost(policePost); err != nil {
+	post := &models.PolicePost{
+		Name:     payload.Name,
+		Location: payload.Location,
+		Contact:  payload.Contact,
+	}
+
+	if err := h.repo.CreatePolicePost(post); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Failed to create police post",
@@ -53,11 +107,12 @@ func (h *PolicePostController) CreatePolicePost(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return the newly created policePost record
+	response := ConvertToPolicePostResponse(*post)
+
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"status":  "success",
-		"message": "police post created successfully",
-		"data":    policePost,
+		"message": "Police post created successfully",
+		"data":    response,
 	})
 }
 
@@ -74,7 +129,7 @@ func (h *PolicePostController) CreatePolicePost(c *fiber.Ctx) error {
 //	@Failure		500	{object}	fiber.Map	"Failed to retrieve policePosts"
 //	@Router			/police-posts [get]
 func (h *PolicePostController) GetAllPolicePosts(c *fiber.Ctx) error {
-	pagination, policePosts, err := h.repo.GetPaginatedPolicePosts(c)
+	pagination, posts, err := h.repo.GetPaginatedPolicePosts(c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
@@ -83,11 +138,16 @@ func (h *PolicePostController) GetAllPolicePosts(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return the paginated response
+	// Convert to response
+	var responses []PolicePostResponse
+	for _, post := range posts {
+		responses = append(responses, ConvertToPolicePostResponse(post))
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status":  "success",
 		"message": "Police posts retrieved successfully",
-		"data":    policePosts,
+		"data":    responses,
 		"pagination": fiber.Map{
 			"total_items":  pagination.TotalItems,
 			"total_pages":  pagination.TotalPages,
@@ -135,7 +195,7 @@ func (h *PolicePostController) GetSinglePolicePost(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status":  "success",
 		"message": "PolicePost and associated data retrieved successfully",
-		"data":    policePost,
+		"data":    ConvertToPolicePostResponse(policePost),
 	})
 }
 
@@ -304,11 +364,21 @@ func (h *PolicePostController) SearchPolicePosts(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return the response with pagination details
-	return c.Status(200).JSON(fiber.Map{
-		"status":     "success",
-		"message":    "PolicePosts retrieved successfully",
-		"pagination": pagination,
-		"data":       policePosts,
+	// Convert to response
+	var responses []PolicePostResponse
+	for _, post := range policePosts {
+		responses = append(responses, ConvertToPolicePostResponse(post))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status":  "success",
+		"message": "Police posts retrieved successfully",
+		"data":    responses,
+		"pagination": fiber.Map{
+			"total_items":  pagination.TotalItems,
+			"total_pages":  pagination.TotalPages,
+			"current_page": pagination.CurrentPage,
+			"limit":        pagination.ItemsPerPage,
+		},
 	})
 }
