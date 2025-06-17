@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gbvmis/internals/models"
 	"gbvmis/internals/repository"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -17,6 +18,107 @@ func NewExaminationController(repo repository.ExaminationRepository) *Examinatio
 	return &ExaminationController{repo: repo}
 }
 
+type CreateExaminationPayload struct {
+	VictimID       uint   `json:"victim_id" validate:"required"`
+	CaseID         uint   `json:"case_id" validate:"required"`
+	FacilityID     uint   `json:"facility_id" validate:"required"`
+	PractitionerID uint   `json:"practitioner_id" validate:"required"`
+	ExamDate       string `json:"exam_date" validate:"required"` // Use `YYYY-MM-DD`
+	Findings       string `json:"findings"`
+	Treatment      string `json:"treatment"`
+	Referral       string `json:"referral"`
+	ConsentGiven   bool   `json:"consent_given"`
+}
+
+type ExaminationInitialResponse struct {
+	ID           uint   `json:"id"`
+	ExamDate     string `json:"exam_date"`
+	Findings     string `json:"findings"`
+	Treatment    string `json:"treatment"`
+	Referral     string `json:"referral"`
+	ConsentGiven bool   `json:"consent_given"`
+
+	Victim struct {
+		ID        uint   `json:"id"`
+		FirstName string `json:"first_name"`
+		LastName  string `json:"last_name"`
+		Gender    string `json:"gender"`
+	} `json:"victim"`
+
+	Case struct {
+		ID         uint   `json:"id"`
+		CaseNumber string `json:"case_number"`
+		Title      string `json:"title"`
+	} `json:"case"`
+
+	Facility struct {
+		ID      uint   `json:"id"`
+		Name    string `json:"name"`
+		Contact string `json:"contact"`
+	} `json:"facility"`
+
+	Practitioner struct {
+		ID         uint   `json:"id"`
+		FirstName  string `json:"first_name"`
+		LastName   string `json:"last_name"`
+		Profession string `json:"profession"`
+	} `json:"practitioner"`
+
+	CreatedAt time.Time `json:"created_at"`
+}
+
+func ConvertToExaminationResponse(e models.Examination) ExaminationInitialResponse {
+	return ExaminationInitialResponse{
+		ID:           e.ID,
+		ExamDate:     e.ExamDate,
+		Findings:     e.Findings,
+		Treatment:    e.Treatment,
+		Referral:     e.Referral,
+		ConsentGiven: e.ConsentGiven,
+		Victim: struct {
+			ID        uint   `json:"id"`
+			FirstName string `json:"first_name"`
+			LastName  string `json:"last_name"`
+			Gender    string `json:"gender"`
+		}{
+			ID:        e.Victim.ID,
+			FirstName: e.Victim.FirstName,
+			LastName:  e.Victim.LastName,
+			Gender:    e.Victim.Gender,
+		},
+		Case: struct {
+			ID         uint   `json:"id"`
+			CaseNumber string `json:"case_number"`
+			Title      string `json:"title"`
+		}{
+			ID:         e.Case.ID,
+			CaseNumber: e.Case.CaseNumber,
+			Title:      e.Case.Title,
+		},
+		Facility: struct {
+			ID      uint   `json:"id"`
+			Name    string `json:"name"`
+			Contact string `json:"contact"`
+		}{
+			ID:      e.Facility.ID,
+			Name:    e.Facility.Name,
+			Contact: e.Facility.Contact,
+		},
+		Practitioner: struct {
+			ID         uint   `json:"id"`
+			FirstName  string `json:"first_name"`
+			LastName   string `json:"last_name"`
+			Profession string `json:"profession"`
+		}{
+			ID:         e.Practitioner.ID,
+			FirstName:  e.Practitioner.FirstName,
+			LastName:   e.Practitioner.LastName,
+			Profession: e.Practitioner.Profession,
+		},
+		CreatedAt: e.CreatedAt,
+	}
+}
+
 // ================================
 
 // CreateExamination godoc
@@ -26,38 +128,40 @@ func NewExaminationController(repo repository.ExaminationRepository) *Examinatio
 //	@Tags			Examinations
 //	@Accept			json
 //	@Produce		json
-//	@Param			examination	body		models.Examination	true	"Examination data to create"
-//	@Success		201			{object}	fiber.Map			"Successfully created examination record"
-//	@Failure		400			{object}	fiber.Map			"Bad request due to invalid input"
-//	@Failure		500			{object}	fiber.Map			"Server error when creating examination"
+//	@Param			examination	body		CreateExaminationPayload	true	"Examination data to create"
+//	@Success		201			{object}	fiber.Map					"Successfully created examination record"
+//	@Failure		400			{object}	fiber.Map					"Bad request due to invalid input"
+//	@Failure		500			{object}	fiber.Map					"Server error when creating examination"
 //	@Router			/examination [post]
 func (h *ExaminationController) CreateExamination(c *fiber.Ctx) error {
-	// Initialize a new examination instance
-	examination := new(models.Examination)
-
-	// Parse the request body into the examination instance
-	if err := c.BodyParser(examination); err != nil {
+	var payload CreateExaminationPayload
+	if err := c.BodyParser(&payload); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"status":  "error",
-			"message": "Invalid input provided",
-			"data":    err.Error(),
+			"status": "error", "message": "Invalid input", "data": err.Error(),
 		})
 	}
 
-	// Attempt to create the examination record using the repository
-	if err := h.repo.CreateExamination(examination); err != nil {
+	exam := &models.Examination{
+		VictimID:       payload.VictimID,
+		CaseID:         payload.CaseID,
+		FacilityID:     payload.FacilityID,
+		PractitionerID: payload.PractitionerID,
+		ExamDate:       payload.ExamDate,
+		Findings:       payload.Findings,
+		Treatment:      payload.Treatment,
+		Referral:       payload.Referral,
+		ConsentGiven:   payload.ConsentGiven,
+	}
+
+	if err := h.repo.CreateExamination(exam); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"status":  "error",
-			"message": "Failed to create examination",
-			"data":    err.Error(),
+			"status": "error", "message": "Failed to create examination", "data": err.Error(),
 		})
 	}
 
-	// Return the newly created examination record
+	response := ConvertToExaminationResponse(*exam)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"status":  "success",
-		"message": "examination created successfully",
-		"data":    examination,
+		"status": "success", "message": "Examination created successfully", "data": response,
 	})
 }
 
@@ -83,11 +187,17 @@ func (h *ExaminationController) GetAllExaminations(c *fiber.Ctx) error {
 		})
 	}
 
+	// Convert to response format
+	var responses []ExaminationInitialResponse
+	for _, e := range examinations {
+		responses = append(responses, ConvertToExaminationResponse(e))
+	}
+
 	// Return the paginated response
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status":  "success",
-		"message": "examinations retrieved successfully",
-		"data":    examinations,
+		"message": "Examinations retrieved successfully",
+		"data":    responses,
 		"pagination": fiber.Map{
 			"total_items":  pagination.TotalItems,
 			"total_pages":  pagination.TotalPages,
@@ -135,7 +245,7 @@ func (h *ExaminationController) GetSingleExamination(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status":  "success",
 		"message": "Examination and associated data retrieved successfully",
-		"data":    examination,
+		"data":    ConvertToExaminationResponse(examination),
 	})
 }
 
@@ -328,11 +438,22 @@ func (h *ExaminationController) SearchExaminations(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return the response with pagination details
-	return c.Status(200).JSON(fiber.Map{
-		"status":     "success",
-		"message":    "Examinations retrieved successfully",
-		"pagination": pagination,
-		"data":       examinations,
+	// Convert to response format
+	var responses []ExaminationInitialResponse
+	for _, e := range examinations {
+		responses = append(responses, ConvertToExaminationResponse(e))
+	}
+
+	// Return the paginated response
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status":  "success",
+		"message": "Examinations retrieved successfully",
+		"data":    responses,
+		"pagination": fiber.Map{
+			"total_items":  pagination.TotalItems,
+			"total_pages":  pagination.TotalPages,
+			"current_page": pagination.CurrentPage,
+			"limit":        pagination.ItemsPerPage,
+		},
 	})
 }

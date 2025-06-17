@@ -531,7 +531,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Examination"
+                            "$ref": "#/definitions/controllers.CreateExaminationPayload"
                         }
                     }
                 ],
@@ -1025,7 +1025,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.HealthPractitioner"
+                            "$ref": "#/definitions/controllers.CreateHealthPractitionerPayload"
                         }
                     }
                 ],
@@ -2616,6 +2616,46 @@
                 }
             }
         },
+        "controllers.CreateExaminationPayload": {
+            "type": "object",
+            "required": [
+                "case_id",
+                "exam_date",
+                "facility_id",
+                "practitioner_id",
+                "victim_id"
+            ],
+            "properties": {
+                "case_id": {
+                    "type": "integer"
+                },
+                "consent_given": {
+                    "type": "boolean"
+                },
+                "exam_date": {
+                    "description": "Use `YYYY-MM-DD`",
+                    "type": "string"
+                },
+                "facility_id": {
+                    "type": "integer"
+                },
+                "findings": {
+                    "type": "string"
+                },
+                "practitioner_id": {
+                    "type": "integer"
+                },
+                "referral": {
+                    "type": "string"
+                },
+                "treatment": {
+                    "type": "string"
+                },
+                "victim_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "controllers.CreateHealthFacilityPayload": {
             "type": "object",
             "required": [
@@ -2629,6 +2669,35 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.CreateHealthPractitionerPayload": {
+            "type": "object",
+            "required": [
+                "facility_id",
+                "first_name",
+                "last_name",
+                "profession"
+            ],
+            "properties": {
+                "facility_id": {
+                    "type": "integer"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "profession": {
                     "type": "string"
                 }
             }
@@ -3023,140 +3092,6 @@
                 },
                 "severity": {
                     "description": "e.g., Felony, Misdemeanor",
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Examination": {
-            "type": "object",
-            "properties": {
-                "case": {
-                    "$ref": "#/definitions/models.Case"
-                },
-                "case_id": {
-                    "type": "integer"
-                },
-                "consent_given": {
-                    "type": "boolean"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "exam_date": {
-                    "type": "string"
-                },
-                "facility": {
-                    "$ref": "#/definitions/models.HealthFacility"
-                },
-                "facility_id": {
-                    "type": "integer"
-                },
-                "findings": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "practitioner": {
-                    "$ref": "#/definitions/models.HealthPractitioner"
-                },
-                "practitioner_id": {
-                    "type": "integer"
-                },
-                "referral": {
-                    "description": "Optional referral info",
-                    "type": "string"
-                },
-                "treatment": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "victim": {
-                    "$ref": "#/definitions/models.Victim"
-                },
-                "victim_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.HealthFacility": {
-            "type": "object",
-            "properties": {
-                "contact": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "practitioners": {
-                    "description": "Relationships",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.HealthPractitioner"
-                    }
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.HealthPractitioner": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "examinations": {
-                    "description": "Relationships",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Examination"
-                    }
-                },
-                "facility_id": {
-                    "description": "Foreign key to HealthFacility",
-                    "type": "integer"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "gender": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "profession": {
-                    "description": "e.g., Doctor, Nurse, Counselor",
                     "type": "string"
                 },
                 "updatedAt": {

@@ -33,7 +33,11 @@ func (r *ExaminationRepositoryImpl) CreateExamination(examination *models.Examin
 }
 
 func (r *ExaminationRepositoryImpl) GetPaginatedExaminations(c *fiber.Ctx) (*utils.Pagination, []models.Examination, error) {
-	pagination, examinations, err := utils.Paginate(c, r.db, models.Examination{})
+	pagination, examinations, err := utils.Paginate(c, r.db.
+		Preload("Victim").
+		Preload("Case").
+		Preload("Facility").
+		Preload("Practitioner"), models.Examination{})
 	if err != nil {
 		return nil, nil, err
 	}
@@ -42,7 +46,11 @@ func (r *ExaminationRepositoryImpl) GetPaginatedExaminations(c *fiber.Ctx) (*uti
 
 func (r *ExaminationRepositoryImpl) GetExaminationByID(id string) (models.Examination, error) {
 	var examination models.Examination
-	err := r.db.First(&examination, "id = ?", id).Error
+	err := r.db.
+		Preload("Victim").
+		Preload("Case").
+		Preload("Facility").
+		Preload("Practitioner").First(&examination, "id = ?", id).Error
 	return examination, err
 }
 
@@ -64,7 +72,11 @@ func (r *ExaminationRepositoryImpl) SearchPaginatedExaminations(c *fiber.Ctx) (*
 	PractitionerID := c.Query("practitioner_id")
 
 	// Start building the query
-	query := r.db.Model(&models.Examination{})
+	query := r.db.
+		Preload("Victim").
+		Preload("Case").
+		Preload("Facility").
+		Preload("Practitioner").Model(&models.Examination{})
 
 	// Apply filters based on provided parameters
 	if FacilityID != "" {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gbvmis/internals/models"
 	"gbvmis/internals/repository"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -17,6 +18,68 @@ func NewHealthPractitionerController(repo repository.HealthPractitionerRepositor
 	return &HealthPractitionerController{repo: repo}
 }
 
+type CreateHealthPractitionerPayload struct {
+	FirstName  string `json:"first_name" validate:"required"`
+	LastName   string `json:"last_name" validate:"required"`
+	Gender     string `json:"gender"`
+	Phone      string `json:"phone"`
+	Profession string `json:"profession" validate:"required"`
+	FacilityID uint   `json:"facility_id" validate:"required"`
+}
+
+type ExaminationResponse struct {
+	ID           uint   `json:"id"`
+	VictimID     uint   `json:"victim_id"`
+	CaseID       uint   `json:"case_id"`
+	FacilityID   uint   `json:"facility_id"`
+	ExamDate     string `json:"exam_date"`
+	Findings     string `json:"findings"`
+	Treatment    string `json:"treatment"`
+	Referral     string `json:"referral"`
+	ConsentGiven bool   `json:"consent_given"`
+}
+
+type HealthPractitionerExamResponse struct {
+	ID           uint                  `json:"id"`
+	FirstName    string                `json:"first_name"`
+	LastName     string                `json:"last_name"`
+	Gender       string                `json:"gender"`
+	Phone        string                `json:"phone"`
+	Profession   string                `json:"profession"`
+	FacilityID   uint                  `json:"facility_id"`
+	CreatedAt    time.Time             `json:"created_at"`
+	Examinations []ExaminationResponse `json:"examinations"`
+}
+
+func ConvertToHealthPractitionerResponse(hp models.HealthPractitioner) HealthPractitionerExamResponse {
+	examinations := make([]ExaminationResponse, len(hp.Examinations))
+	for i, examination := range hp.Examinations {
+		examinations[i] = ExaminationResponse{
+			ID:           examination.ID,
+			VictimID:     examination.VictimID,
+			CaseID:       examination.CaseID,
+			FacilityID:   examination.FacilityID,
+			ExamDate:     examination.ExamDate,
+			Findings:     examination.Findings,
+			Treatment:    examination.Treatment,
+			Referral:     examination.Findings,
+			ConsentGiven: examination.ConsentGiven,
+		}
+	}
+
+	return HealthPractitionerExamResponse{
+		ID:           hp.ID,
+		FirstName:    hp.FirstName,
+		LastName:     hp.LastName,
+		Gender:       hp.Gender,
+		Phone:        hp.Phone,
+		Profession:   hp.Profession,
+		FacilityID:   hp.FacilityID,
+		CreatedAt:    hp.CreatedAt,
+		Examinations: examinations,
+	}
+}
+
 // ================================
 
 // CreateHealthPractitioner godoc
@@ -26,17 +89,14 @@ func NewHealthPractitionerController(repo repository.HealthPractitionerRepositor
 //	@Tags			Health practitioners
 //	@Accept			json
 //	@Produce		json
-//	@Param			Health	practitioner	body		models.HealthPractitioner	true	"Health practitioner data to create"
+//	@Param			Health	practitioner	body		CreateHealthPractitionerPayload	true	"Health practitioner data to create"
 //	@Success		201		{object}		fiber.Map	"Successfully created health practitioner record"
 //	@Failure		400		{object}		fiber.Map	"Bad request due to invalid input"
 //	@Failure		500		{object}		fiber.Map	"Server error when creating health practitioner"
 //	@Router			/health-practitioner [post]
 func (h *HealthPractitionerController) CreateHealthPractitioner(c *fiber.Ctx) error {
-	// Initialize a new health practitioner instance
-	healthPractitioner := new(models.HealthPractitioner)
-
-	// Parse the request body into the HealthPractitioner instance
-	if err := c.BodyParser(healthPractitioner); err != nil {
+	var payload CreateHealthPractitionerPayload
+	if err := c.BodyParser(&payload); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Invalid input provided",
@@ -44,8 +104,16 @@ func (h *HealthPractitionerController) CreateHealthPractitioner(c *fiber.Ctx) er
 		})
 	}
 
-	// Attempt to create the healthPractitioner record using the repository
-	if err := h.repo.CreateHealthPractitioner(healthPractitioner); err != nil {
+	hp := &models.HealthPractitioner{
+		FirstName:  payload.FirstName,
+		LastName:   payload.LastName,
+		Gender:     payload.Gender,
+		Phone:      payload.Phone,
+		Profession: payload.Profession,
+		FacilityID: payload.FacilityID,
+	}
+
+	if err := h.repo.CreateHealthPractitioner(hp); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Failed to create health practitioner",
@@ -53,11 +121,12 @@ func (h *HealthPractitionerController) CreateHealthPractitioner(c *fiber.Ctx) er
 		})
 	}
 
-	// Return the newly created healthPractitioner record
+	response := ConvertToHealthPractitionerResponse(*hp)
+
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"status":  "success",
-		"message": "health practitioner created successfully",
-		"data":    healthPractitioner,
+		"message": "Health practitioner created successfully",
+		"data":    response,
 	})
 }
 
@@ -83,11 +152,16 @@ func (h *HealthPractitionerController) GetAllHealthPractitioners(c *fiber.Ctx) e
 		})
 	}
 
+	hpResponses := make([]HealthPractitionerExamResponse, len(healthPractitioners))
+	for i, hp := range healthPractitioners {
+		hpResponses[i] = ConvertToHealthPractitionerResponse(hp)
+	}
+
 	// Return the paginated response
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status":  "success",
 		"message": "Health practitioners retrieved successfully",
-		"data":    healthPractitioners,
+		"data":    hpResponses,
 		"pagination": fiber.Map{
 			"total_items":  pagination.TotalItems,
 			"total_pages":  pagination.TotalPages,
@@ -316,11 +390,21 @@ func (h *HealthPractitionerController) SearchHealthPractitioners(c *fiber.Ctx) e
 		})
 	}
 
-	// Return the response with pagination details
-	return c.Status(200).JSON(fiber.Map{
-		"status":     "success",
-		"message":    "HealthPractitioners retrieved successfully",
-		"pagination": pagination,
-		"data":       healthPractitioners,
+	hpResponses := make([]HealthPractitionerExamResponse, len(healthPractitioners))
+	for i, hp := range healthPractitioners {
+		hpResponses[i] = ConvertToHealthPractitionerResponse(hp)
+	}
+
+	// Return the paginated response
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status":  "success",
+		"message": "Health practitioners retrieved successfully",
+		"data":    hpResponses,
+		"pagination": fiber.Map{
+			"total_items":  pagination.TotalItems,
+			"total_pages":  pagination.TotalPages,
+			"current_page": pagination.CurrentPage,
+			"limit":        pagination.ItemsPerPage,
+		},
 	})
 }

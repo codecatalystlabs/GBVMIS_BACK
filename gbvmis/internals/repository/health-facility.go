@@ -32,7 +32,7 @@ func (r *HealthFacilityRepositoryImpl) CreateHealthFacility(healthFacility *mode
 }
 
 func (r *HealthFacilityRepositoryImpl) GetPaginatedHealthFacilities(c *fiber.Ctx) (*utils.Pagination, []models.HealthFacility, error) {
-	pagination, healthFacilities, err := utils.Paginate(c, r.db.Preload("HealthPractitioner"), models.HealthFacility{})
+	pagination, healthFacilities, err := utils.Paginate(c, r.db.Preload("Practitioners"), models.HealthFacility{})
 	if err != nil {
 		return nil, nil, err
 	}
@@ -41,7 +41,7 @@ func (r *HealthFacilityRepositoryImpl) GetPaginatedHealthFacilities(c *fiber.Ctx
 
 func (r *HealthFacilityRepositoryImpl) GetHealthFacilityByID(id string) (models.HealthFacility, error) {
 	var healthFacility models.HealthFacility
-	err := r.db.Preload("HealthPractitioner").First(&healthFacility, "id = ?", id).Error
+	err := r.db.Preload("Practitioners").First(&healthFacility, "id = ?", id).Error
 	return healthFacility, err
 }
 
@@ -74,7 +74,7 @@ func (r *HealthFacilityRepositoryImpl) SearchPaginatedHealthFacilities(c *fiber.
 	}
 
 	// Call the pagination helper
-	pagination, healthFacilities, err := utils.Paginate(c, query.Preload("HealthPractitioner"), models.HealthFacility{})
+	pagination, healthFacilities, err := utils.Paginate(c, query.Preload("Practitioners"), models.HealthFacility{})
 	if err != nil {
 		return nil, nil, err
 	}

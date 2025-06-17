@@ -50,6 +50,34 @@ definitions:
     - case_number
     - title
     type: object
+  controllers.CreateExaminationPayload:
+    properties:
+      case_id:
+        type: integer
+      consent_given:
+        type: boolean
+      exam_date:
+        description: Use `YYYY-MM-DD`
+        type: string
+      facility_id:
+        type: integer
+      findings:
+        type: string
+      practitioner_id:
+        type: integer
+      referral:
+        type: string
+      treatment:
+        type: string
+      victim_id:
+        type: integer
+    required:
+    - case_id
+    - exam_date
+    - facility_id
+    - practitioner_id
+    - victim_id
+    type: object
   controllers.CreateHealthFacilityPayload:
     properties:
       contact:
@@ -60,6 +88,26 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  controllers.CreateHealthPractitionerPayload:
+    properties:
+      facility_id:
+        type: integer
+      first_name:
+        type: string
+      gender:
+        type: string
+      last_name:
+        type: string
+      phone:
+        type: string
+      profession:
+        type: string
+    required:
+    - facility_id
+    - first_name
+    - last_name
+    - profession
     type: object
   controllers.CreateOfficerPayload:
     properties:
@@ -323,96 +371,6 @@ definitions:
         type: integer
       severity:
         description: e.g., Felony, Misdemeanor
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  models.Examination:
-    properties:
-      case:
-        $ref: '#/definitions/models.Case'
-      case_id:
-        type: integer
-      consent_given:
-        type: boolean
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      exam_date:
-        type: string
-      facility:
-        $ref: '#/definitions/models.HealthFacility'
-      facility_id:
-        type: integer
-      findings:
-        type: string
-      id:
-        type: integer
-      practitioner:
-        $ref: '#/definitions/models.HealthPractitioner'
-      practitioner_id:
-        type: integer
-      referral:
-        description: Optional referral info
-        type: string
-      treatment:
-        type: string
-      updatedAt:
-        type: string
-      victim:
-        $ref: '#/definitions/models.Victim'
-      victim_id:
-        type: integer
-    type: object
-  models.HealthFacility:
-    properties:
-      contact:
-        type: string
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      id:
-        type: integer
-      location:
-        type: string
-      name:
-        type: string
-      practitioners:
-        description: Relationships
-        items:
-          $ref: '#/definitions/models.HealthPractitioner'
-        type: array
-      updatedAt:
-        type: string
-    type: object
-  models.HealthPractitioner:
-    properties:
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      examinations:
-        description: Relationships
-        items:
-          $ref: '#/definitions/models.Examination'
-        type: array
-      facility_id:
-        description: Foreign key to HealthFacility
-        type: integer
-      first_name:
-        type: string
-      gender:
-        type: string
-      id:
-        type: integer
-      last_name:
-        type: string
-      phone:
-        type: string
-      profession:
-        description: e.g., Doctor, Nurse, Counselor
         type: string
       updatedAt:
         type: string
@@ -880,7 +838,7 @@ paths:
         name: examination
         required: true
         schema:
-          $ref: '#/definitions/models.Examination'
+          $ref: '#/definitions/controllers.CreateExaminationPayload'
       produces:
       - application/json
       responses:
@@ -1211,7 +1169,7 @@ paths:
         name: practitioner
         required: true
         schema:
-          $ref: '#/definitions/models.HealthPractitioner'
+          $ref: '#/definitions/controllers.CreateHealthPractitionerPayload'
       produces:
       - application/json
       responses:

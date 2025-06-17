@@ -33,7 +33,7 @@ func (r *HealthPractitionerRepositoryImpl) CreateHealthPractitioner(healthPracti
 }
 
 func (r *HealthPractitionerRepositoryImpl) GetPaginatedHealthPractitioners(c *fiber.Ctx) (*utils.Pagination, []models.HealthPractitioner, error) {
-	pagination, healthPractitioners, err := utils.Paginate(c, r.db, models.HealthPractitioner{})
+	pagination, healthPractitioners, err := utils.Paginate(c, r.db.Preload("Examinations"), models.HealthPractitioner{})
 	if err != nil {
 		return nil, nil, err
 	}
@@ -42,7 +42,7 @@ func (r *HealthPractitionerRepositoryImpl) GetPaginatedHealthPractitioners(c *fi
 
 func (r *HealthPractitionerRepositoryImpl) GetHealthPractitionerByID(id string) (models.HealthPractitioner, error) {
 	var healthPractitioner models.HealthPractitioner
-	err := r.db.First(&healthPractitioner, "id = ?", id).Error
+	err := r.db.Preload("Examinations").First(&healthPractitioner, "id = ?", id).Error
 	return healthPractitioner, err
 }
 
@@ -68,7 +68,7 @@ func (r *HealthPractitionerRepositoryImpl) SearchPaginatedHealthPractitioners(c 
 	FacilityID := c.Query("facility_id")
 
 	// Start building the query
-	query := r.db.Model(&models.HealthPractitioner{})
+	query := r.db.Preload("Examinations").Model(&models.HealthPractitioner{})
 
 	// Apply filters based on provided parameters
 	if FirstName != "" {
