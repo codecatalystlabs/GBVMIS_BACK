@@ -92,10 +92,19 @@ func ConvertToCaseResponse(casee models.Case) CaseResponse {
 	}
 
 	return CaseResponse{
-		ID: casee.ID, CaseNumber: casee.CaseNumber, Title: casee.Title,
-		Description: casee.Description, Status: casee.Status, DateOpened: casee.DateOpened,
-		SuspectID: casee.SuspectID, OfficerID: casee.OfficerID, PolicePostID: casee.PolicePostID,
-		Charges: charges, Victims: victims, CreatedAt: casee.CreatedAt, UpdatedAt: casee.UpdatedAt,
+		ID:           casee.ID,
+		CaseNumber:   casee.CaseNumber,
+		Title:        casee.Title,
+		Description:  casee.Description,
+		Status:       casee.Status,
+		DateOpened:   casee.DateOpened,
+		SuspectID:    casee.SuspectID,
+		OfficerID:    casee.OfficerID,
+		PolicePostID: casee.PolicePostID,
+		Charges:      charges,
+		Victims:      victims,
+		CreatedAt:    casee.CreatedAt,
+		UpdatedAt:    casee.UpdatedAt,
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gbvmis/internals/models"
 	"gbvmis/internals/repository"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -19,6 +20,20 @@ func NewVictimController(repo repository.VictimRepository) *VictimController {
 
 // ================================
 
+type CreateVictimPayload struct {
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	Gender      string `json:"gender"`
+	Dob         string `json:"dob"` // expect "YYYY-MM-DD"
+	PhoneNumber string `json:"phone_number"`
+	Address     string `json:"address"`
+	Nationality string `json:"nationality"`
+	Nin         string `json:"nin"`
+	CreatedBy   string `json:"created_by"`
+	UpdatedBy   string `json:"updated_by,omitempty"`
+	CaseIDs     []uint `json:"case_ids,omitempty"`
+}
+
 // CreateVictim godoc
 //
 //	@Summary		Create a new victim record
@@ -26,17 +41,15 @@ func NewVictimController(repo repository.VictimRepository) *VictimController {
 //	@Tags			Victims
 //	@Accept			json
 //	@Produce		json
-//	@Param			victim	body		models.Victim	true	"Victim data to create"
-//	@Success		201		{object}	fiber.Map		"Successfully created victim record"
-//	@Failure		400		{object}	fiber.Map		"Bad request due to invalid input"
-//	@Failure		500		{object}	fiber.Map		"Server error when creating victim"
+//	@Param			victim	body		CreateVictimPayload	true	"Victim data to create"
+//	@Success		201		{object}	fiber.Map			"Successfully created victim record"
+//	@Failure		400		{object}	fiber.Map			"Bad request due to invalid input"
+//	@Failure		500		{object}	fiber.Map			"Server error when creating victim"
 //	@Router			/victims [post]
 func (h *VictimController) CreateVictim(c *fiber.Ctx) error {
-	// Initialize a new victim instance
-	victim := new(models.Victim)
-
-	// Parse the request body into the victim instance
-	if err := c.BodyParser(victim); err != nil {
+	// 1️⃣ Bind into the payload
+	payload := new(CreateVictimPayload)
+	if err := c.BodyParser(payload); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Invalid input provided",
@@ -44,8 +57,40 @@ func (h *VictimController) CreateVictim(c *fiber.Ctx) error {
 		})
 	}
 
-	// Attempt to create the victim record using the repository
-	if err := h.repo.CreateVictim(victim); err != nil {
+	// 2️⃣ Parse the DOB string into a time.Time
+	dob, err := time.Parse("2006-01-02", payload.Dob)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Invalid dob format; use YYYY-MM-DD",
+			"data":    err.Error(),
+		})
+	}
+
+	// 3️⃣ Map payload → model
+	victim := models.Victim{
+		FirstName:   payload.FirstName,
+		LastName:    payload.LastName,
+		Gender:      payload.Gender,
+		Dob:         dob, // directly use parsed time
+		PhoneNumber: payload.PhoneNumber,
+		Address:     payload.Address,
+		Nationality: payload.Nationality,
+		Nin:         payload.Nin,
+		CreatedBy:   payload.CreatedBy,
+		UpdatedBy:   payload.UpdatedBy,
+	}
+
+	// 4️⃣ Optionally associate existing cases
+	if len(payload.CaseIDs) > 0 {
+		victim.Cases = make([]models.Case, len(payload.CaseIDs))
+		for i, id := range payload.CaseIDs {
+			victim.Cases[i] = models.Case{Model: gorm.Model{ID: id}}
+		}
+	}
+
+	// 5️⃣ Persist
+	if err := h.repo.CreateVictim(&victim); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Failed to create victim",
@@ -53,7 +98,7 @@ func (h *VictimController) CreateVictim(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return the newly created victim record
+	// 6️⃣ Return
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"status":  "success",
 		"message": "Victim created successfully",
@@ -131,33 +176,6 @@ func (h *VictimController) GetSingleVictim(c *fiber.Ctx) error {
 		})
 	}
 
-	// // Fetch victim addresses associated with the victim
-	// addresses, err := h.repo.GetVictimAddresses(victim.ID)
-	// if err != nil {
-	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-	// 		"status":  "error",
-	// 		"message": "Failed to retrieve victim addresses",
-	// 		"data":    err.Error(),
-	// 	})
-	// }
-
-	// // Fetch victim contacts associated with the victim
-	// contacts, err := h.repo.GetVictimContacts(victim.ID)
-	// if err != nil {
-	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-	// 		"status":  "error",
-	// 		"message": "Failed to retrieve victim contacts",
-	// 		"data":    err.Error(),
-	// 	})
-	// }
-
-	// // Prepare the response
-	// response := fiber.Map{
-	// 	"victim": victim,
-	// 	"address":  addresses,
-	// 	"contact":  contacts,
-	// }
-
 	// Return the response
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status":  "success",
@@ -170,15 +188,15 @@ func (h *VictimController) GetSingleVictim(c *fiber.Ctx) error {
 
 // Define the UpdateVictim struct
 type UpdateVictimPayload struct {
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
-	Gender      string `json:"gender"`
-	Dob         string `json:"dob"`
-	PhoneNumber string `json:"phone_number"`
-	Address     string `json:"address"`
-	Nationality string `json:"nationality"`
-	Nin         string `json:"nin"`
-	UpdatedBy   string `json:"updated_by"`
+	FirstName   string `json:"first_name,omitempty"`
+	LastName    string `json:"last_name,omitempty"`
+	Gender      string `json:"gender,omitempty"`
+	Dob         string `json:"dob,omitempty"`
+	PhoneNumber string `json:"phone_number,omitempty"`
+	Address     string `json:"address,omitempty"`
+	Nationality string `json:"nationality,omitempty"`
+	Nin         string `json:"nin,omitempty"`
+	UpdatedBy   string `json:"updated_by,omitempty"`
 }
 
 // UpdateVictim godoc

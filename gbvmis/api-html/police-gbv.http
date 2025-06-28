@@ -68,3 +68,31 @@ Authorization: Bearer {{bearer}}
 ###
 DELETE {{hostname}}/police-officer/2
 Authorization: Bearer {{bearer}}
+
+
+
+###
+POST {{hostname}}/victims
+Authorization: Bearer {{bearer}}
+Content-Type: application/json
+
+{
+  "address": "kampala masilo",
+  "case_ids": [
+    0
+  ],
+  "updated_by": "string",
+  "created_by": "admin",
+  "dob": "1994-01-10",
+  "first_name": "Abraham",
+  "gender": "male",
+  "last_name": "twesigye",
+  "nationality": "Kenyan",
+  "nin": "CMP0930932",
+  "phone_number": "25689284736"
+}
+
+###
+# Get total carexpense by ID
+GET {{hostname}}/role/1
+Authorization: Bearer {{bearer}}

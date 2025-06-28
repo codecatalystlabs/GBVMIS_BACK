@@ -114,5 +114,11 @@ func SetupRoute(app *fiber.App, db *gorm.DB) {
 	examination.Put("/:id", examinationController.UpdateExamination)
 	examination.Delete("/:id", examinationController.DeleteExaminationByID)
 
+	roleService := repository.RoleDbService(db)
+	roleController := controllers.NewRoleController(roleService)
+	protected.Get("/roles", roleController.GetAllRoles)
+	protected.Get("/roles/search", roleController.SearchRoles)
+	protected.Get("/role/:id", roleController.GetSingleRole)
+
 	NotFoundRoute(app)
 }

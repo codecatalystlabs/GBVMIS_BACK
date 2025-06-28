@@ -157,6 +157,34 @@ definitions:
     required:
     - name
     type: object
+  controllers.CreateVictimPayload:
+    properties:
+      address:
+        type: string
+      case_ids:
+        items:
+          type: integer
+        type: array
+      created_by:
+        type: string
+      dob:
+        description: expect "YYYY-MM-DD"
+        type: string
+      first_name:
+        type: string
+      gender:
+        type: string
+      last_name:
+        type: string
+      nationality:
+        type: string
+      nin:
+        type: string
+      phone_number:
+        type: string
+      updated_by:
+        type: string
+    type: object
   controllers.UpdateCasePayload:
     properties:
       charges:
@@ -316,45 +344,6 @@ definitions:
         description: Valid is true if Time is not NULL
         type: boolean
     type: object
-  models.Case:
-    properties:
-      case_number:
-        type: string
-      charges:
-        items:
-          $ref: '#/definitions/models.Charge'
-        type: array
-      createdAt:
-        type: string
-      date_opened:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      description:
-        type: string
-      id:
-        type: integer
-      officer:
-        $ref: '#/definitions/models.PoliceOfficer'
-      officer_id:
-        type: integer
-      police_post_id:
-        type: integer
-      policePost:
-        $ref: '#/definitions/models.PolicePost'
-      status:
-        type: string
-      suspect_id:
-        type: integer
-      title:
-        type: string
-      updatedAt:
-        type: string
-      victims:
-        items:
-          $ref: '#/definitions/models.Victim'
-        type: array
-    type: object
   models.Charge:
     properties:
       case_id:
@@ -375,115 +364,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  models.PoliceOfficer:
-    properties:
-      badge_no:
-        type: string
-      cases:
-        items:
-          $ref: '#/definitions/models.Case'
-        type: array
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      email:
-        type: string
-      first_name:
-        type: string
-      id:
-        type: integer
-      last_name:
-        type: string
-      password:
-        type: string
-      phone:
-        type: string
-      post_id:
-        type: integer
-      rank:
-        type: string
-      roles:
-        items:
-          $ref: '#/definitions/models.Role'
-        type: array
-      updatedAt:
-        type: string
-      username:
-        type: string
-    type: object
-  models.PolicePost:
-    properties:
-      contact:
-        type: string
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      id:
-        type: integer
-      location:
-        type: string
-      name:
-        type: string
-      officers:
-        description: Relationships
-        items:
-          $ref: '#/definitions/models.PoliceOfficer'
-        type: array
-      updatedAt:
-        type: string
-    type: object
-  models.Role:
-    properties:
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      id:
-        type: integer
-      name:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  models.Victim:
-    properties:
-      address:
-        type: string
-      cases:
-        description: Relationships
-        items:
-          $ref: '#/definitions/models.Case'
-        type: array
-      created_by:
-        type: string
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      dob:
-        type: string
-      first_name:
-        type: string
-      gender:
-        type: string
-      id:
-        type: integer
-      last_name:
-        type: string
-      nationality:
-        type: string
-      nin:
-        type: string
-      phone_number:
-        type: string
-      updated_by:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-host: localhost:8080/api
+host: localhost:8085/api
 info:
   contact:
     email: fiber@swagger.io
@@ -1745,6 +1626,73 @@ paths:
       summary: Refresh JWT tokens
       tags:
       - Auth
+  /role/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Fetches a role record based on the provided ID.
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role retrieved successfully
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "404":
+          description: Role not found
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Server error when retrieving role
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Retrieve a single role record by ID
+      tags:
+      - Roles
+  /roles:
+    get:
+      consumes:
+      - application/json
+      description: Fetches all role records with pagination support.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Roles retrieved successfully
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Failed to retrieve roles
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Retrieve a paginated list of roles
+      tags:
+      - roles
+  /roles/search:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a paginated list of roles based on search criteria.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Roles retrieved successfully
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Failed to retrieve roles
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Search for roles with pagination
+      tags:
+      - Roles
   /suspect:
     post:
       consumes:
@@ -2143,7 +2091,7 @@ paths:
         name: victim
         required: true
         schema:
-          $ref: '#/definitions/models.Victim'
+          $ref: '#/definitions/controllers.CreateVictimPayload'
       produces:
       - application/json
       responses:

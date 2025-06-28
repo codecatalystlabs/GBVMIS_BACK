@@ -1893,6 +1893,108 @@ const docTemplate = `{
                 }
             }
         },
+        "/role/{id}": {
+            "get": {
+                "description": "Fetches a role record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Retrieve a single role record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Role ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Role not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when retrieving role",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/roles": {
+            "get": {
+                "description": "Fetches all role records with pagination support.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "roles"
+                ],
+                "summary": "Retrieve a paginated list of roles",
+                "responses": {
+                    "200": {
+                        "description": "Roles retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve roles",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/roles/search": {
+            "get": {
+                "description": "Retrieves a paginated list of roles based on search criteria.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Search for roles with pagination",
+                "responses": {
+                    "200": {
+                        "description": "Roles retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve roles",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
         "/suspect": {
             "post": {
                 "description": "Creates a new suspect entry with photo and fingerprints files.",
@@ -2490,7 +2592,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Victim"
+                            "$ref": "#/definitions/controllers.CreateVictimPayload"
                         }
                     }
                 ],
@@ -2776,6 +2878,48 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.CreateVictimPayload": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "case_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "dob": {
+                    "description": "expect \"YYYY-MM-DD\"",
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "nin": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.UpdateCasePayload": {
             "type": "object",
             "properties": {
@@ -3016,65 +3160,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Case": {
-            "type": "object",
-            "properties": {
-                "case_number": {
-                    "type": "string"
-                },
-                "charges": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Charge"
-                    }
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "date_opened": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "officer": {
-                    "$ref": "#/definitions/models.PoliceOfficer"
-                },
-                "officer_id": {
-                    "type": "integer"
-                },
-                "policePost": {
-                    "$ref": "#/definitions/models.PolicePost"
-                },
-                "police_post_id": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "suspect_id": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "victims": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Victim"
-                    }
-                }
-            }
-        },
         "models.Charge": {
             "type": "object",
             "properties": {
@@ -3104,169 +3189,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "models.PoliceOfficer": {
-            "type": "object",
-            "properties": {
-                "badge_no": {
-                    "type": "string"
-                },
-                "cases": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Case"
-                    }
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "post_id": {
-                    "type": "integer"
-                },
-                "rank": {
-                    "type": "string"
-                },
-                "roles": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Role"
-                    }
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.PolicePost": {
-            "type": "object",
-            "properties": {
-                "contact": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "officers": {
-                    "description": "Relationships",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.PoliceOfficer"
-                    }
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Role": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Victim": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "cases": {
-                    "description": "Relationships",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Case"
-                    }
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "dob": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "gender": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "nationality": {
-                    "type": "string"
-                },
-                "nin": {
-                    "type": "string"
-                },
-                "phone_number": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                }
-            }
         }
     }
 }`
@@ -3274,7 +3196,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080/api",
+	Host:             "localhost:8085/api",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "SGBV Police API",
