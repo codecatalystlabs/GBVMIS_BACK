@@ -37,8 +37,10 @@ definitions:
         type: integer
       status:
         type: string
-      suspect_id:
-        type: integer
+      suspect_ids:
+        items:
+          type: integer
+        type: array
       title:
         type: string
       victim_ids:

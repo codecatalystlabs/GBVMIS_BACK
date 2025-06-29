@@ -2709,8 +2709,11 @@ const docTemplate = `{
                 "status": {
                     "type": "string"
                 },
-                "suspect_id": {
-                    "type": "integer"
+                "suspect_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "title": {
                     "type": "string"

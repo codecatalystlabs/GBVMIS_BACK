@@ -25,12 +25,12 @@ type CreateCasePayload struct {
 	Description  string    `json:"description"`
 	Status       string    `json:"status"`
 	DateOpened   time.Time `json:"date_opened"`
-	SuspectID    uint      `json:"suspect_id"`
 	OfficerID    uint      `json:"officer_id"`
 	PolicePostID uint      `json:"police_post_id"`
 
-	Charges   []ChargePayload `json:"charges"`    // Optional inline
-	VictimIDs []uint          `json:"victim_ids"` // For existing victims
+	Charges    []ChargePayload `json:"charges"`    // Optional inline
+	VictimIDs  []uint          `json:"victim_ids"` // For existing victims
+	SuspectIDs []uint          `json:"suspect_ids"`
 }
 
 type ChargePayload struct {
@@ -75,6 +75,16 @@ type VictimResponse struct {
 	PhoneNumber string `json:"phone_number"`
 }
 
+type SuspectResponse struct {
+	ID         uint   `json:"id"`
+	FirstName  string `json:"first_name"`
+	MiddleName string `json:"middle_name"`
+	LastName   string `json:"last_name"`
+	Gender     string `json:"gender"`
+	Nin        string `json:"nin"`
+	Address    string `json:"address"`
+}
+
 func ConvertToCaseResponse(casee models.Case) CaseResponse {
 	var charges []ChargeResponse
 	for _, ch := range casee.Charges {
@@ -88,6 +98,18 @@ func ConvertToCaseResponse(casee models.Case) CaseResponse {
 		victims = append(victims, VictimResponse{
 			ID: v.ID, FirstName: v.FirstName, LastName: v.LastName,
 			Gender: v.Gender, PhoneNumber: v.PhoneNumber,
+		})
+	}
+
+	var suspects []SuspectResponse
+	for _, v := range casee.Suspects {
+		suspects = append(suspects, SuspectResponse{
+			ID:        v.ID,
+			FirstName: v.FirstName,
+			LastName:  v.LastName,
+			Gender:    v.Gender,
+			Address:   v.Address,
+			Nin:       v.Nin,
 		})
 	}
 
@@ -134,7 +156,6 @@ func (h *CaseController) CreateCase(c *fiber.Ctx) error {
 		Description:  payload.Description,
 		Status:       payload.Status,
 		DateOpened:   payload.DateOpened,
-		SuspectID:    payload.SuspectID,
 		OfficerID:    payload.OfficerID,
 		PolicePostID: payload.PolicePostID,
 	}
@@ -155,6 +176,14 @@ func (h *CaseController) CreateCase(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorResponse("Invalid victim IDs", err))
 		}
 		casee.Victims = victims
+	}
+
+	if len(payload.SuspectIDs) > 0 {
+		var suspects []models.Suspect
+		if err := h.repo.FindSuspectsByIDs(payload.SuspectIDs, &suspects); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorResponse("Invalid suspect IDs", err))
+		}
+		casee.Suspects = suspects
 	}
 
 	// Save case with associations

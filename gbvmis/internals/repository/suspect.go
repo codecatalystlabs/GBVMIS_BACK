@@ -33,7 +33,8 @@ func (r *SuspectRepositoryImpl) CreateSuspect(suspect *models.Suspect) error {
 }
 
 func (r *SuspectRepositoryImpl) GetPaginatedSuspects(c *fiber.Ctx) (*utils.Pagination, []models.Suspect, error) {
-	pagination, suspects, err := utils.Paginate(c, r.db, models.Suspect{})
+	pagination, suspects, err := utils.Paginate(c, r.db.
+		Preload("Cases").Preload("Arrests"), models.Suspect{})
 	if err != nil {
 		return nil, nil, err
 	}
@@ -42,7 +43,8 @@ func (r *SuspectRepositoryImpl) GetPaginatedSuspects(c *fiber.Ctx) (*utils.Pagin
 
 func (r *SuspectRepositoryImpl) GetSuspectByID(id string) (models.Suspect, error) {
 	var suspect models.Suspect
-	err := r.db.First(&suspect, "id = ?", id).Error
+	err := r.db.
+		Preload("Cases").Preload("Arrests").First(&suspect, "id = ?", id).Error
 	return suspect, err
 }
 
@@ -71,7 +73,8 @@ func (r *SuspectRepositoryImpl) SearchPaginatedSuspects(c *fiber.Ctx) (*utils.Pa
 	Status := c.Query("status")
 
 	// Start building the query
-	query := r.db.Model(&models.Charge{})
+	query := r.db.
+		Preload("Cases").Preload("Arrests").Model(&models.Charge{})
 
 	// Apply filters based on provided parameters
 	if FirstName != "" {
