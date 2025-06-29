@@ -2643,6 +2643,52 @@
                 }
             }
         },
+        "/victim": {
+            "post": {
+                "description": "Creates a new victim entry in the system and returns the created record.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Victims"
+                ],
+                "summary": "Create a new victim record",
+                "parameters": [
+                    {
+                        "description": "Victim data to create",
+                        "name": "victim",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CreateVictimPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created victim record",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request due to invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when creating victim",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
         "/victim/{id}": {
             "get": {
                 "description": "Fetches a victim record based on the provided ID.",
@@ -2808,50 +2854,6 @@
                     },
                     "500": {
                         "description": "Failed to retrieve victims",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Creates a new victim entry in the system and returns the created record.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Victims"
-                ],
-                "summary": "Create a new victim record",
-                "parameters": [
-                    {
-                        "description": "Victim data to create",
-                        "name": "victim",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controllers.CreateVictimPayload"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Successfully created victim record",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request due to invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    },
-                    "500": {
-                        "description": "Server error when creating victim",
                         "schema": {
                             "$ref": "#/definitions/fiber.Map"
                         }

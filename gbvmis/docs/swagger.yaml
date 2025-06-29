@@ -2158,6 +2158,37 @@ paths:
       summary: Search for suspects with pagination
       tags:
       - Suspects
+  /victim:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new victim entry in the system and returns the created
+        record.
+      parameters:
+      - description: Victim data to create
+        in: body
+        name: victim
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CreateVictimPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created victim record
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "400":
+          description: Bad request due to invalid input
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Server error when creating victim
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Create a new victim record
+      tags:
+      - Victims
   /victim/{id}:
     delete:
       consumes:
@@ -2271,36 +2302,6 @@ paths:
           schema:
             $ref: '#/definitions/fiber.Map'
       summary: Retrieve a paginated list of victims
-      tags:
-      - Victims
-    post:
-      consumes:
-      - application/json
-      description: Creates a new victim entry in the system and returns the created
-        record.
-      parameters:
-      - description: Victim data to create
-        in: body
-        name: victim
-        required: true
-        schema:
-          $ref: '#/definitions/controllers.CreateVictimPayload'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Successfully created victim record
-          schema:
-            $ref: '#/definitions/fiber.Map'
-        "400":
-          description: Bad request due to invalid input
-          schema:
-            $ref: '#/definitions/fiber.Map'
-        "500":
-          description: Server error when creating victim
-          schema:
-            $ref: '#/definitions/fiber.Map'
-      summary: Create a new victim record
       tags:
       - Victims
   /victims/search:

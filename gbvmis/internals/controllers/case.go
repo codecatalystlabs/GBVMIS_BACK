@@ -49,9 +49,9 @@ type CaseResponse struct {
 	Status      string    `json:"status"`
 	DateOpened  time.Time `json:"date_opened"`
 
-	SuspectID    uint `json:"suspect_id"`
-	OfficerID    uint `json:"officer_id"`
-	PolicePostID uint `json:"police_post_id"`
+	Suspects     []SuspectResponse `json:"suspects"`
+	OfficerID    uint              `json:"officer_id"`
+	PolicePostID uint              `json:"police_post_id"`
 
 	Charges []ChargeResponse `json:"charges"`
 	Victims []VictimResponse `json:"victims"`
@@ -120,7 +120,7 @@ func ConvertToCaseResponse(casee models.Case) CaseResponse {
 		Description:  casee.Description,
 		Status:       casee.Status,
 		DateOpened:   casee.DateOpened,
-		SuspectID:    casee.SuspectID,
+		Suspects:     suspects,
 		OfficerID:    casee.OfficerID,
 		PolicePostID: casee.PolicePostID,
 		Charges:      charges,
@@ -144,6 +144,7 @@ func ConvertToCaseResponse(casee models.Case) CaseResponse {
 //	@Failure		400		{object}	fiber.Map			"Bad request due to invalid input"
 //	@Failure		500		{object}	fiber.Map			"Server error when creating case"
 //	@Router			/case [post]
+
 func (h *CaseController) CreateCase(c *fiber.Ctx) error {
 	var payload CreateCasePayload
 	if err := c.BodyParser(&payload); err != nil {

@@ -39,7 +39,6 @@ type Case struct {
 	Description  string        `gorm:"type:text" json:"description"`
 	Status       string        `json:"status"`
 	DateOpened   time.Time     `gorm:"type:date" json:"date_opened"`
-	SuspectID    uint          `json:"suspect_id"`
 	OfficerID    uint          `json:"officer_id"`
 	PolicePostID uint          `json:"police_post_id"`
 	Suspects     []Suspect     `gorm:"many2many:case_suspects;" json:"suspects"`

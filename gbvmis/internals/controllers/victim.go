@@ -45,7 +45,7 @@ type CreateVictimPayload struct {
 //	@Success		201		{object}	fiber.Map			"Successfully created victim record"
 //	@Failure		400		{object}	fiber.Map			"Bad request due to invalid input"
 //	@Failure		500		{object}	fiber.Map			"Server error when creating victim"
-//	@Router			/victims [post]
+//	@Router			/victim [post]
 func (h *VictimController) CreateVictim(c *fiber.Ctx) error {
 	// 1️⃣ Bind into the payload
 	payload := new(CreateVictimPayload)
