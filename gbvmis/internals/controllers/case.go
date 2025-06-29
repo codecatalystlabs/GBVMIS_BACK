@@ -290,23 +290,23 @@ type UpdateCasePayload struct {
 	Description  string                `json:"description"`
 	Status       string                `json:"status"`
 	DateOpened   time.Time             `json:"date_opened"`
-	SuspectID    uint                  `json:"suspect_id"`
 	OfficerID    uint                  `json:"officer_id"`
 	PolicePostID uint                  `json:"police_post_id"`
 	Charges      []ChargeUpdatePayload `json:"charges"`    // <== new field
 	VictimIDs    []uint                `json:"victim_ids"` // NEW
+	SuspectIDs   []uint                `json:"suspect_ids"`
 }
 
 func (p UpdateCasePayload) IsEmpty() bool {
 	return p.Title == "" &&
 		p.Description == "" &&
 		p.Status == "" &&
-		p.SuspectID == 0 &&
 		p.OfficerID == 0 &&
 		p.PolicePostID == 0 &&
 		p.DateOpened.IsZero() &&
 		len(p.Charges) == 0 &&
-		len(p.VictimIDs) == 0
+		len(p.VictimIDs) == 0 &&
+		len(p.SuspectIDs) == 0
 }
 
 // UpdateCase godoc
@@ -379,9 +379,9 @@ func (h *CaseController) UpdateCase(c *fiber.Ctx) error {
 	if !payload.DateOpened.IsZero() {
 		updates["date_opened"] = payload.DateOpened
 	}
-	if payload.SuspectID != 0 {
-		updates["suspect_id"] = payload.SuspectID
-	}
+	// if payload.SuspectID != 0 {
+	// 	updates["suspect_id"] = payload.SuspectID
+	// }
 	if payload.OfficerID != 0 {
 		updates["officer_id"] = payload.OfficerID
 	}
@@ -446,6 +446,28 @@ func (h *CaseController) UpdateCase(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"status":  "error",
 				"message": "Failed to update case victims",
+				"data":    err.Error(),
+			})
+		}
+	}
+
+	if len(payload.SuspectIDs) > 0 {
+		var suspects []models.Suspect
+		if err := tx.Where("id IN ?", payload.SuspectIDs).Find(&suspects).Error; err != nil {
+			tx.Rollback()
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Invalid suspect IDs",
+				"data":    err.Error(),
+			})
+		}
+
+		// Replace victims association
+		if err := tx.Model(caseRecord).Association("Suspects").Replace(suspects); err != nil {
+			tx.Rollback()
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Failed to update case suspects",
 				"data":    err.Error(),
 			})
 		}
