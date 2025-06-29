@@ -15,7 +15,7 @@ func hashPassword(password string) (string, error) {
 
 func SeedDatabase(db *gorm.DB) {
 
-	roles := []models.Role{
+	role := []models.Role{
 		{
 			Name: "Admin",
 		},
@@ -31,7 +31,7 @@ func SeedDatabase(db *gorm.DB) {
 	var roleCount int64
 	db.Model(&models.Role{}).Count(&roleCount)
 	if roleCount == 0 {
-		if err := db.Create(&roles).Error; err != nil {
+		if err := db.Create(&role).Error; err != nil {
 			log.Fatalf("Failed to seed roles: %v", err)
 		} else {
 			log.Println("Roles data seeded successfully")

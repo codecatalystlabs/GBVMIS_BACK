@@ -63,7 +63,7 @@ func (r *RoleRepositoryImpl) SearchPaginatedRoles(c *fiber.Ctx) (*utils.Paginati
 	Name := c.Query("name")
 
 	// Start building the query
-	query := r.db.Model(&models.Charge{})
+	query := r.db.Model(&models.Role{})
 
 	// Apply filters based on provided parameters
 	if Name != "" {

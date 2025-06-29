@@ -2,6 +2,9 @@ package models
 
 import "gorm.io/gorm"
 
+// Forward declaration for Role to fix undefined error
+// type Role struct defined in role.go
+
 type PoliceOfficer struct {
 	gorm.Model
 	FirstName string `json:"first_name"`
@@ -17,9 +20,4 @@ type PoliceOfficer struct {
 
 	Roles []*Role `gorm:"many2many:officer_roles;" json:"roles"`
 	Cases []Case  `gorm:"foreignKey:OfficerID" json:"cases"`
-}
-
-type Role struct {
-	gorm.Model
-	Name string `gorm:"uniqueIndex;not null" json:"name"`
 }

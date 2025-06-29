@@ -114,5 +114,15 @@ func SetupRoute(app *fiber.App, db *gorm.DB) {
 	examination.Put("/:id", examinationController.UpdateExamination)
 	examination.Delete("/:id", examinationController.DeleteExaminationByID)
 
+	policeRolesService := repository.RoleDbService(db)
+	policeRolesController := controllers.NewPoliceRolesController(policeRolesService)
+	protected.Get("/police-roles", policeRolesController.GetAllPoliceRoles)
+	protected.Get("/police-roles/search", policeRolesController.SearchPoliceRoles)
+	policeRoles := protected.Group("/police-role")
+	policeRoles.Post("/", policeRolesController.CreatePoliceRoles)
+	policeRoles.Get("/:id", policeRolesController.GetSinglePoliceRole)
+	policeRoles.Put("/:id", policeRolesController.UpdatePoliceRole)
+	policeRoles.Delete("/:id", policeRolesController.DeletePoliceRole)
+
 	NotFoundRoute(app)
 }
