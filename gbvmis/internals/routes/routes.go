@@ -120,5 +120,15 @@ func SetupRoute(app *fiber.App, db *gorm.DB) {
 	protected.Get("/roles/search", roleController.SearchRoles)
 	protected.Get("/role/:id", roleController.GetSingleRole)
 
+	arrestService := repository.ArrestDbService(db)
+	arrestController := controllers.NewArrestController(arrestService)
+	protected.Get("/arrests", arrestController.GetAllArrests)
+	protected.Get("/arrests/search", arrestController.SearchArrests)
+	arrest := protected.Group("/arrest")
+	arrest.Get("/:id", arrestController.GetSingleArrest)
+	arrest.Post("/", arrestController.CreateArrest)
+	arrest.Put("/:id", arrestController.UpdateArrest)
+	arrest.Delete("/:id", arrestController.DeleteArrestByID)
+
 	NotFoundRoute(app)
 }

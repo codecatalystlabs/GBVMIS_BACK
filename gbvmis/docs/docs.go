@@ -23,6 +23,253 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/arrest": {
+            "post": {
+                "description": "Creates a new arrest entry in the system and returns the created record.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Arrests"
+                ],
+                "summary": "Create a new arrest record",
+                "parameters": [
+                    {
+                        "description": "Arrest data to create",
+                        "name": "Arrest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CreateArrestPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created arrest record",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request due to invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when creating arrest",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/arrest/{id}": {
+            "get": {
+                "description": "Fetches a Arrest record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Arrests"
+                ],
+                "summary": "Retrieve a single Arrest record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Arrest ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Arrest retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Arrest not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when retrieving arrest",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates the details of a Arrest record based on the provided ID and request body.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Arrests"
+                ],
+                "summary": "Update an existing arrest record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Arrest ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Arrest data to update",
+                        "name": "Arrest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UpdateArrestPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Arrest updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input or empty request body",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Arrest not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when updating Arrest",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a Arrest record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Arrests"
+                ],
+                "summary": "Delete a Arrest record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Arrest ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Arrest deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Arrest not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when deleting Arrest",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/arrests": {
+            "get": {
+                "description": "Fetches all Arrest records with pagination support.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Arrests"
+                ],
+                "summary": "Retrieve a paginated list of arrests",
+                "responses": {
+                    "200": {
+                        "description": "Arrests retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve arrests",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/arrests/search": {
+            "get": {
+                "description": "Retrieves a paginated list of arrests based on search criteria.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Arrests"
+                ],
+                "summary": "Search for arrests with pagination",
+                "responses": {
+                    "200": {
+                        "description": "Arrests retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve Arrests",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
         "/case": {
             "post": {
                 "description": "Creates a new case entry in the system and returns the created record.",
@@ -2677,6 +2924,26 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.CreateArrestPayload": {
+            "type": "object",
+            "properties": {
+                "arrest_date": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "officer_name": {
+                    "type": "string"
+                },
+                "suspect_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "controllers.CreateCasePayload": {
             "type": "object",
             "required": [
@@ -2920,6 +3187,26 @@ const docTemplate = `{
                 },
                 "updated_by": {
                     "type": "string"
+                }
+            }
+        },
+        "controllers.UpdateArrestPayload": {
+            "type": "object",
+            "properties": {
+                "arrest_date": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "officer_name": {
+                    "type": "string"
+                },
+                "suspect_id": {
+                    "type": "integer"
                 }
             }
         },
