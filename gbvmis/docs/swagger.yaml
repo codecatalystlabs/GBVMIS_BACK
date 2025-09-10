@@ -1,23 +1,5 @@
 basePath: /
 definitions:
-  controllers.ChargePayload:
-    properties:
-      charge_title:
-        type: string
-      description:
-        type: string
-      severity:
-        type: string
-    type: object
-  controllers.ChargeUpdatePayload:
-    properties:
-      charge_title:
-        type: string
-      description:
-        type: string
-      severity:
-        type: string
-    type: object
   controllers.CreateArrestPayload:
     properties:
       arrest_date:
@@ -30,40 +12,6 @@ definitions:
         type: string
       suspect_id:
         type: integer
-    type: object
-  controllers.CreateCasePayload:
-    properties:
-      case_number:
-        type: string
-      charges:
-        description: Optional inline
-        items:
-          $ref: '#/definitions/controllers.ChargePayload'
-        type: array
-      date_opened:
-        type: string
-      description:
-        type: string
-      officer_id:
-        type: integer
-      police_post_id:
-        type: integer
-      status:
-        type: string
-      suspect_ids:
-        items:
-          type: integer
-        type: array
-      title:
-        type: string
-      victim_ids:
-        description: For existing victims
-        items:
-          type: integer
-        type: array
-    required:
-    - case_number
-    - title
     type: object
   controllers.CreateExaminationPayload:
     properties:
@@ -215,10 +163,9 @@ definitions:
     type: object
   controllers.UpdateCasePayload:
     properties:
-      charges:
-        description: <== new field
+      charge_ids:
         items:
-          $ref: '#/definitions/controllers.ChargeUpdatePayload'
+          type: integer
         type: array
       date_opened:
         type: string
@@ -230,8 +177,10 @@ definitions:
         type: integer
       status:
         type: string
-      suspect_id:
-        type: integer
+      suspect_ids:
+        items:
+          type: integer
+        type: array
       title:
         type: string
       victim_ids:
@@ -372,10 +321,78 @@ definitions:
         description: Valid is true if Time is not NULL
         type: boolean
     type: object
+  models.Arrest:
+    properties:
+      arrest_date:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      location:
+        type: string
+      notes:
+        type: string
+      officer_name:
+        type: string
+      suspect_id:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.Case:
+    properties:
+      case_number:
+        type: string
+      charges:
+        items:
+          $ref: '#/definitions/models.Charge'
+        type: array
+      createdAt:
+        type: string
+      date_opened:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        type: string
+      id:
+        type: integer
+      officer:
+        $ref: '#/definitions/models.PoliceOfficer'
+      officer_id:
+        type: integer
+      police_post_id:
+        type: integer
+      policePost:
+        $ref: '#/definitions/models.PolicePost'
+      status:
+        type: string
+      suspects:
+        items:
+          $ref: '#/definitions/models.Suspect'
+        type: array
+      title:
+        type: string
+      updatedAt:
+        type: string
+      victims:
+        items:
+          $ref: '#/definitions/models.Victim'
+        type: array
+      witnesses:
+        items:
+          $ref: '#/definitions/models.Witness'
+        type: array
+    type: object
   models.Charge:
     properties:
-      case_id:
-        type: integer
+      cases:
+        items:
+          $ref: '#/definitions/models.Case'
+        type: array
       charge_title:
         type: string
       createdAt:
@@ -388,6 +405,204 @@ definitions:
         type: integer
       severity:
         description: e.g., Felony, Misdemeanor
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.PoliceOfficer:
+    properties:
+      badge_no:
+        type: string
+      cases:
+        items:
+          $ref: '#/definitions/models.Case'
+        type: array
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      post_id:
+        type: integer
+      rank:
+        type: string
+      roles:
+        items:
+          $ref: '#/definitions/models.Role'
+        type: array
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+  models.PolicePost:
+    properties:
+      contact:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      location:
+        type: string
+      name:
+        type: string
+      officers:
+        description: Relationships
+        items:
+          $ref: '#/definitions/models.PoliceOfficer'
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  models.Role:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.Suspect:
+    properties:
+      address:
+        type: string
+      arrests:
+        items:
+          $ref: '#/definitions/models.Arrest'
+        type: array
+      cases:
+        description: Relationships
+        items:
+          $ref: '#/definitions/models.Case'
+        type: array
+      created_by:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      dob:
+        type: string
+      fingerprints:
+        items:
+          type: integer
+        type: array
+      first_name:
+        type: string
+      gender:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      middle_name:
+        type: string
+      nationality:
+        type: string
+      nin:
+        type: string
+      occupation:
+        type: string
+      phone_number:
+        type: string
+      photo:
+        items:
+          type: integer
+        type: array
+      status:
+        type: string
+      updated_by:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.Victim:
+    properties:
+      address:
+        type: string
+      cases:
+        description: Relationships
+        items:
+          $ref: '#/definitions/models.Case'
+        type: array
+      created_by:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      dob:
+        type: string
+      first_name:
+        type: string
+      gender:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      nationality:
+        type: string
+      nin:
+        type: string
+      phone_number:
+        type: string
+      updated_by:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.Witness:
+    properties:
+      address:
+        type: string
+      cases:
+        description: Relationships
+        items:
+          $ref: '#/definitions/models.Case'
+        type: array
+      created_by:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      dob:
+        type: string
+      first_name:
+        type: string
+      gender:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      nationality:
+        type: string
+      nin:
+        type: string
+      phone_number:
+        type: string
+      updated_by:
         type: string
       updatedAt:
         type: string
@@ -570,37 +785,6 @@ paths:
       summary: Search for arrests with pagination
       tags:
       - Arrests
-  /case:
-    post:
-      consumes:
-      - application/json
-      description: Creates a new case entry in the system and returns the created
-        record.
-      parameters:
-      - description: Case data to create
-        in: body
-        name: case
-        required: true
-        schema:
-          $ref: '#/definitions/controllers.CreateCasePayload'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Successfully created case record
-          schema:
-            $ref: '#/definitions/fiber.Map'
-        "400":
-          description: Bad request due to invalid input
-          schema:
-            $ref: '#/definitions/fiber.Map'
-        "500":
-          description: Server error when creating case
-          schema:
-            $ref: '#/definitions/fiber.Map'
-      summary: Create a new case record
-      tags:
-      - Cases
   /case/{id}:
     delete:
       consumes:

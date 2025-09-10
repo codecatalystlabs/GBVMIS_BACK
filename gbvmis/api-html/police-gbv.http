@@ -1,6 +1,5 @@
-
-
-@hostname = http://localhost:8085/api
+# @hostname = http://localhost:8085/api
+@hostname = https://dev.codecatalystug.com/api
 # @name tokenAPI
 POST {{hostname}}/login
 content-type: application/json
@@ -118,4 +117,8 @@ Content-Type: application/json
 ###
 # Get total carexpense by ID
 GET {{hostname}}/role/1
+Authorization: Bearer {{bearer}}
+
+###
+GET {{hostname}}/victims
 Authorization: Bearer {{bearer}}

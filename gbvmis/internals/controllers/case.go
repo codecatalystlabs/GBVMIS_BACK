@@ -27,16 +27,10 @@ type CreateCasePayload struct {
 	DateOpened   time.Time `json:"date_opened"`
 	OfficerID    uint      `json:"officer_id"`
 	PolicePostID uint      `json:"police_post_id"`
-
-	Charges    []ChargePayload `json:"charges"`    // Optional inline
-	VictimIDs  []uint          `json:"victim_ids"` // For existing victims
-	SuspectIDs []uint          `json:"suspect_ids"`
-}
-
-type ChargePayload struct {
-	ChargeTitle string `json:"charge_title"`
-	Description string `json:"description"`
-	Severity    string `json:"severity"`
+	// Optional inline
+	VictimIDs  []uint `json:"victim_ids"` // For existing victims
+	SuspectIDs []uint `json:"suspect_ids"`
+	ChargeIDs  []uint `json:"charge_ids"`
 }
 
 // =======
@@ -161,13 +155,12 @@ func (h *CaseController) CreateCase(c *fiber.Ctx) error {
 		PolicePostID: payload.PolicePostID,
 	}
 
-	// Create and attach charges
-	for _, ch := range payload.Charges {
-		casee.Charges = append(casee.Charges, models.Charge{
-			ChargeTitle: ch.ChargeTitle,
-			Description: ch.Description,
-			Severity:    ch.Severity,
-		})
+	if len(payload.ChargeIDs) > 0 {
+		var charges []models.Charge
+		if err := h.repo.FindChargesByIDs(payload.ChargeIDs, &charges); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorResponse("Invalid charge IDs", err))
+		}
+		casee.Charges = charges
 	}
 
 	// Attach existing victims by IDs
@@ -286,15 +279,15 @@ type ChargeUpdatePayload struct {
 }
 
 type UpdateCasePayload struct {
-	Title        string                `json:"title"`
-	Description  string                `json:"description"`
-	Status       string                `json:"status"`
-	DateOpened   time.Time             `json:"date_opened"`
-	OfficerID    uint                  `json:"officer_id"`
-	PolicePostID uint                  `json:"police_post_id"`
-	Charges      []ChargeUpdatePayload `json:"charges"`    // <== new field
-	VictimIDs    []uint                `json:"victim_ids"` // NEW
-	SuspectIDs   []uint                `json:"suspect_ids"`
+	Title        string    `json:"title"`
+	Description  string    `json:"description"`
+	Status       string    `json:"status"`
+	DateOpened   time.Time `json:"date_opened"`
+	OfficerID    uint      `json:"officer_id"`
+	PolicePostID uint      `json:"police_post_id"`
+	ChargeIDs    []uint    `json:"charge_ids"`
+	VictimIDs    []uint    `json:"victim_ids"` // NEW
+	SuspectIDs   []uint    `json:"suspect_ids"`
 }
 
 func (p UpdateCasePayload) IsEmpty() bool {
@@ -304,7 +297,7 @@ func (p UpdateCasePayload) IsEmpty() bool {
 		p.OfficerID == 0 &&
 		p.PolicePostID == 0 &&
 		p.DateOpened.IsZero() &&
-		len(p.Charges) == 0 &&
+		len(p.ChargeIDs) == 0 &&
 		len(p.VictimIDs) == 0 &&
 		len(p.SuspectIDs) == 0
 }
@@ -399,33 +392,25 @@ func (h *CaseController) UpdateCase(c *fiber.Ctx) error {
 	}
 
 	// Update charges if provided
-	if len(payload.Charges) > 0 {
-		// Delete existing charges
-		if err := tx.Where("case_id = ?", caseRecord.ID).Delete(&models.Charge{}).Error; err != nil {
+	if len(payload.ChargeIDs) > 0 {
+		var charges []models.Charge
+		if err := tx.Where("id IN ?", payload.ChargeIDs).Find(&charges).Error; err != nil {
 			tx.Rollback()
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"status":  "error",
-				"message": "Failed to delete existing charges",
+				"message": "Invalid charge IDs",
 				"data":    err.Error(),
 			})
 		}
 
-		// Insert new charges
-		for _, ch := range payload.Charges {
-			newCharge := models.Charge{
-				CaseID:      caseRecord.ID,
-				ChargeTitle: ch.ChargeTitle,
-				Description: ch.Description,
-				Severity:    ch.Severity,
-			}
-			if err := tx.Create(&newCharge).Error; err != nil {
-				tx.Rollback()
-				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-					"status":  "error",
-					"message": "Failed to create charge",
-					"data":    err.Error(),
-				})
-			}
+		// Replace existing associations with the new ones
+		if err := tx.Model(&caseRecord).Association("Charges").Replace(&charges); err != nil {
+			tx.Rollback()
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Failed to update case charges",
+				"data":    err.Error(),
+			})
 		}
 	}
 

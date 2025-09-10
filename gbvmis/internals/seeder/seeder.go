@@ -98,4 +98,45 @@ func SeedDatabase(db *gorm.DB) {
 		log.Println("Users table already seeded, skipping...")
 	}
 
+	charges := []models.Charge{
+		{
+			ChargeTitle: "Theft",
+			Description: "Taking someone else's property without permission.",
+			Severity:    "Felony",
+		},
+		{
+			ChargeTitle: "Assault",
+			Description: "Causing physical harm to another person.",
+			Severity:    "Felony",
+		},
+		{
+			ChargeTitle: "Fraud",
+			Description: "Deceiving someone for financial or personal gain.",
+			Severity:    "Misdemeanor",
+		},
+		{
+			ChargeTitle: "Trespassing",
+			Description: "Entering someone's property without permission.",
+			Severity:    "Misdemeanor",
+		},
+		{
+			ChargeTitle: "Arson",
+			Description: "Intentionally setting fire to property.",
+			Severity:    "Felony",
+		},
+	}
+
+	// Check if the charges table already has data
+	var chargeCount int64
+	db.Model(&models.Charge{}).Count(&chargeCount)
+	if chargeCount == 0 {
+		if err := db.Create(&charges).Error; err != nil {
+			log.Fatalf("Failed to seed charges: %v", err)
+		} else {
+			log.Println("Charges data seeded successfully")
+		}
+	} else {
+		log.Println("Charges table already seeded, skipping...")
+	}
+
 }

@@ -42,8 +42,9 @@ type Case struct {
 	OfficerID    uint          `json:"officer_id"`
 	PolicePostID uint          `json:"police_post_id"`
 	Suspects     []Suspect     `gorm:"many2many:case_suspects;" json:"suspects"`
-	Charges      []Charge      `gorm:"foreignKey:CaseID" json:"charges"`
+	Charges      []Charge      `gorm:"many2many:case_charges;" json:"charges"`
 	Victims      []Victim      `gorm:"many2many:case_victims;" json:"victims"`
+	Witnesses    []Witness     `gorm:"many2many:case_witnesses;" json:"witnesses"`
 	Officer      PoliceOfficer `gorm:"foreignKey:OfficerID"`
 	PolicePost   PolicePost    `gorm:"foreignKey:PolicePostID"`
 }
@@ -62,5 +63,5 @@ type Charge struct {
 	ChargeTitle string `json:"charge_title"`
 	Description string `gorm:"type:text" json:"description"`
 	Severity    string `json:"severity"` // e.g., Felony, Misdemeanor
-	CaseID      uint   `json:"case_id"`
+	Cases       []Case `gorm:"many2many:case_charges;" json:"cases"`
 }

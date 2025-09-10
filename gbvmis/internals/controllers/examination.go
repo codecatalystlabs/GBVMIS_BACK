@@ -343,7 +343,7 @@ func (h *ExaminationController) UpdateExamination(c *fiber.Ctx) error {
 	if payload.Referral != "" {
 		updates["referral"] = payload.Referral
 	}
-	if payload.ConsentGiven != false {
+	if payload.ConsentGiven {
 		updates["consent_given"] = payload.ConsentGiven
 	}
 

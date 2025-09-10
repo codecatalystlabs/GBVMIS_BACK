@@ -264,52 +264,6 @@
                 }
             }
         },
-        "/case": {
-            "post": {
-                "description": "Creates a new case entry in the system and returns the created record.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Cases"
-                ],
-                "summary": "Create a new case record",
-                "parameters": [
-                    {
-                        "description": "Case data to create",
-                        "name": "case",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controllers.CreateCasePayload"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Successfully created case record",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request due to invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    },
-                    "500": {
-                        "description": "Server error when creating case",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    }
-                }
-            }
-        },
         "/case/{id}": {
             "get": {
                 "description": "Fetches a case record based on the provided ID.",
@@ -2892,34 +2846,6 @@
         }
     },
     "definitions": {
-        "controllers.ChargePayload": {
-            "type": "object",
-            "properties": {
-                "charge_title": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "severity": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.ChargeUpdatePayload": {
-            "type": "object",
-            "properties": {
-                "charge_title": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "severity": {
-                    "type": "string"
-                }
-            }
-        },
         "controllers.CreateArrestPayload": {
             "type": "object",
             "properties": {
@@ -2937,56 +2863,6 @@
                 },
                 "suspect_id": {
                     "type": "integer"
-                }
-            }
-        },
-        "controllers.CreateCasePayload": {
-            "type": "object",
-            "required": [
-                "case_number",
-                "title"
-            ],
-            "properties": {
-                "case_number": {
-                    "type": "string"
-                },
-                "charges": {
-                    "description": "Optional inline",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.ChargePayload"
-                    }
-                },
-                "date_opened": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "officer_id": {
-                    "type": "integer"
-                },
-                "police_post_id": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "suspect_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "title": {
-                    "type": "string"
-                },
-                "victim_ids": {
-                    "description": "For existing victims",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
                 }
             }
         },
@@ -3209,11 +3085,10 @@
         "controllers.UpdateCasePayload": {
             "type": "object",
             "properties": {
-                "charges": {
-                    "description": "\u003c== new field",
+                "charge_ids": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controllers.ChargeUpdatePayload"
+                        "type": "integer"
                     }
                 },
                 "date_opened": {
@@ -3231,8 +3106,11 @@
                 "status": {
                     "type": "string"
                 },
-                "suspect_id": {
-                    "type": "integer"
+                "suspect_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "title": {
                     "type": "string"
@@ -3446,11 +3324,114 @@
                 }
             }
         },
+        "models.Arrest": {
+            "type": "object",
+            "properties": {
+                "arrest_date": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "officer_name": {
+                    "type": "string"
+                },
+                "suspect_id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Case": {
+            "type": "object",
+            "properties": {
+                "case_number": {
+                    "type": "string"
+                },
+                "charges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Charge"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "date_opened": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "officer": {
+                    "$ref": "#/definitions/models.PoliceOfficer"
+                },
+                "officer_id": {
+                    "type": "integer"
+                },
+                "policePost": {
+                    "$ref": "#/definitions/models.PolicePost"
+                },
+                "police_post_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "suspects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Suspect"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "victims": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Victim"
+                    }
+                },
+                "witnesses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Witness"
+                    }
+                }
+            }
+        },
         "models.Charge": {
             "type": "object",
             "properties": {
-                "case_id": {
-                    "type": "integer"
+                "cases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Case"
+                    }
                 },
                 "charge_title": {
                     "type": "string"
@@ -3472,6 +3453,304 @@
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PoliceOfficer": {
+            "type": "object",
+            "properties": {
+                "badge_no": {
+                    "type": "string"
+                },
+                "cases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Case"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "post_id": {
+                    "type": "integer"
+                },
+                "rank": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Role"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PolicePost": {
+            "type": "object",
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "officers": {
+                    "description": "Relationships",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PoliceOfficer"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Role": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Suspect": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "arrests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Arrest"
+                    }
+                },
+                "cases": {
+                    "description": "Relationships",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Case"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "dob": {
+                    "type": "string"
+                },
+                "fingerprints": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "middle_name": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "nin": {
+                    "type": "string"
+                },
+                "occupation": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "photo": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Victim": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "cases": {
+                    "description": "Relationships",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Case"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "dob": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "nin": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Witness": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "cases": {
+                    "description": "Relationships",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Case"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "dob": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "nin": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updated_by": {
                     "type": "string"
                 }
             }

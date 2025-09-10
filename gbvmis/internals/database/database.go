@@ -78,6 +78,12 @@ func (d *DBInstance) Migrate() {
 		&models.Role{},
 		&models.PolicePost{},
 		&models.PoliceOfficer{},
+		&models.Witness{},
+		&models.Symptom{},
+		&models.PostMortemSummary{},
+		&models.Person{},
+		&models.PoliceReport{},
+		&models.ToxicologyForensicReport{},
 	)
 }
 
