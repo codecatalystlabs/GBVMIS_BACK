@@ -1,6 +1,5 @@
-
-
-@hostname = http://127.0.0.1:8085/api
+# @hostname = http://localhost:8085/api
+@hostname = https://dev.codecatalystug.com/api
 # @name tokenAPI
 POST {{hostname}}/login
 content-type: application/json
@@ -17,25 +16,48 @@ Authorization: Bearer {{bearer}}
 ###
 @bearer = {{tokenAPI.response.body.access_token}}
 @bearer_refresh = {{tokenAPI.response.body.refresh_token}}
-GET {{hostname}}/police-officers?page=1&limit=5
+GET {{hostname}}/suspects?page=1&limit=5
 Authorization: Bearer {{bearer}}
 
 ###
-POST {{hostname}}/police-officer
+POST {{hostname}}/case
 Authorization: Bearer {{bearer}}
 Content-Type: application/json
 
+# {
+# 	"first_name": "Mugabenn",
+#     "last_name": "Johnnhn",
+#     "rank": "ASP",
+#     "badge_no": "B00193",
+#     "phone": "07812663937",
+#     "post_id": 1,
+#     "username": "MugmkJ",
+#     "email": "mugamkbejohn@example.com",
+# 	"password": "Admin123",
+#     "role_ids": [2]
+# }
+
 {
-	"first_name": "Mugabenn",
-    "last_name": "Johnnhn",
-    "rank": "ASP",
-    "badge_no": "B00193",
-    "phone": "07812663937",
-    "post_id": 1,
-    "username": "MugmkJ",
-    "email": "mugamkbejohn@example.com",
-	"password": "Admin123",
-    "role_ids": [2]
+    "case_number": "1212412",
+    "title": "Theft",
+    "status": "Active",
+    "date_opened": "2025-06-14T00:00:00Z",
+    "officer_id": 1,
+    "police_post_id": 1,
+    "suspect_ids": [
+        1
+    ],
+    "victim_ids": [
+        1
+    ],
+    "description": "Assault with weapons",
+    "charges": [
+        {
+            "charge_title": "Assault",
+            "description": "tyuiooiuytgthyjukilkjhg",
+            "severity": "Moderate"
+        }
+    ]
 }
 
 ###
@@ -67,4 +89,36 @@ Authorization: Bearer {{bearer}}
 
 ###
 DELETE {{hostname}}/police-officer/2
+Authorization: Bearer {{bearer}}
+
+
+
+###
+POST {{hostname}}/victims
+Authorization: Bearer {{bearer}}
+Content-Type: application/json
+
+{
+  "address": "kampala masilo",
+  "case_ids": [
+    0
+  ],
+  "updated_by": "string",
+  "created_by": "admin",
+  "dob": "1994-01-10",
+  "first_name": "Abraham",
+  "gender": "male",
+  "last_name": "twesigye",
+  "nationality": "Kenyan",
+  "nin": "CMP0930932",
+  "phone_number": "25689284736"
+}
+
+###
+# Get total carexpense by ID
+GET {{hostname}}/role/1
+Authorization: Bearer {{bearer}}
+
+###
+GET {{hostname}}/victims
 Authorization: Bearer {{bearer}}

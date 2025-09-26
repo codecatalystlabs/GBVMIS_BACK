@@ -25,18 +25,12 @@ type CreateCasePayload struct {
 	Description  string    `json:"description"`
 	Status       string    `json:"status"`
 	DateOpened   time.Time `json:"date_opened"`
-	SuspectID    uint      `json:"suspect_id"`
 	OfficerID    uint      `json:"officer_id"`
 	PolicePostID uint      `json:"police_post_id"`
-
-	Charges   []ChargePayload `json:"charges"`    // Optional inline
-	VictimIDs []uint          `json:"victim_ids"` // For existing victims
-}
-
-type ChargePayload struct {
-	ChargeTitle string `json:"charge_title"`
-	Description string `json:"description"`
-	Severity    string `json:"severity"`
+	// Optional inline
+	VictimIDs  []uint `json:"victim_ids"` // For existing victims
+	SuspectIDs []uint `json:"suspect_ids"`
+	ChargeIDs  []uint `json:"charge_ids"`
 }
 
 // =======
@@ -49,9 +43,9 @@ type CaseResponse struct {
 	Status      string    `json:"status"`
 	DateOpened  time.Time `json:"date_opened"`
 
-	SuspectID    uint `json:"suspect_id"`
-	OfficerID    uint `json:"officer_id"`
-	PolicePostID uint `json:"police_post_id"`
+	Suspects     []SuspectResponse `json:"suspects"`
+	OfficerID    uint              `json:"officer_id"`
+	PolicePostID uint              `json:"police_post_id"`
 
 	Charges []ChargeResponse `json:"charges"`
 	Victims []VictimResponse `json:"victims"`
@@ -75,6 +69,16 @@ type VictimResponse struct {
 	PhoneNumber string `json:"phone_number"`
 }
 
+type SuspectResponse struct {
+	ID         uint   `json:"id"`
+	FirstName  string `json:"first_name"`
+	MiddleName string `json:"middle_name"`
+	LastName   string `json:"last_name"`
+	Gender     string `json:"gender"`
+	Nin        string `json:"nin"`
+	Address    string `json:"address"`
+}
+
 func ConvertToCaseResponse(casee models.Case) CaseResponse {
 	var charges []ChargeResponse
 	for _, ch := range casee.Charges {
@@ -91,11 +95,32 @@ func ConvertToCaseResponse(casee models.Case) CaseResponse {
 		})
 	}
 
+	var suspects []SuspectResponse
+	for _, v := range casee.Suspects {
+		suspects = append(suspects, SuspectResponse{
+			ID:        v.ID,
+			FirstName: v.FirstName,
+			LastName:  v.LastName,
+			Gender:    v.Gender,
+			Address:   v.Address,
+			Nin:       v.Nin,
+		})
+	}
+
 	return CaseResponse{
-		ID: casee.ID, CaseNumber: casee.CaseNumber, Title: casee.Title,
-		Description: casee.Description, Status: casee.Status, DateOpened: casee.DateOpened,
-		SuspectID: casee.SuspectID, OfficerID: casee.OfficerID, PolicePostID: casee.PolicePostID,
-		Charges: charges, Victims: victims, CreatedAt: casee.CreatedAt, UpdatedAt: casee.UpdatedAt,
+		ID:           casee.ID,
+		CaseNumber:   casee.CaseNumber,
+		Title:        casee.Title,
+		Description:  casee.Description,
+		Status:       casee.Status,
+		DateOpened:   casee.DateOpened,
+		Suspects:     suspects,
+		OfficerID:    casee.OfficerID,
+		PolicePostID: casee.PolicePostID,
+		Charges:      charges,
+		Victims:      victims,
+		CreatedAt:    casee.CreatedAt,
+		UpdatedAt:    casee.UpdatedAt,
 	}
 }
 
@@ -113,6 +138,7 @@ func ConvertToCaseResponse(casee models.Case) CaseResponse {
 //	@Failure		400		{object}	fiber.Map			"Bad request due to invalid input"
 //	@Failure		500		{object}	fiber.Map			"Server error when creating case"
 //	@Router			/case [post]
+
 func (h *CaseController) CreateCase(c *fiber.Ctx) error {
 	var payload CreateCasePayload
 	if err := c.BodyParser(&payload); err != nil {
@@ -125,18 +151,16 @@ func (h *CaseController) CreateCase(c *fiber.Ctx) error {
 		Description:  payload.Description,
 		Status:       payload.Status,
 		DateOpened:   payload.DateOpened,
-		SuspectID:    payload.SuspectID,
 		OfficerID:    payload.OfficerID,
 		PolicePostID: payload.PolicePostID,
 	}
 
-	// Create and attach charges
-	for _, ch := range payload.Charges {
-		casee.Charges = append(casee.Charges, models.Charge{
-			ChargeTitle: ch.ChargeTitle,
-			Description: ch.Description,
-			Severity:    ch.Severity,
-		})
+	if len(payload.ChargeIDs) > 0 {
+		var charges []models.Charge
+		if err := h.repo.FindChargesByIDs(payload.ChargeIDs, &charges); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorResponse("Invalid charge IDs", err))
+		}
+		casee.Charges = charges
 	}
 
 	// Attach existing victims by IDs
@@ -146,6 +170,14 @@ func (h *CaseController) CreateCase(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorResponse("Invalid victim IDs", err))
 		}
 		casee.Victims = victims
+	}
+
+	if len(payload.SuspectIDs) > 0 {
+		var suspects []models.Suspect
+		if err := h.repo.FindSuspectsByIDs(payload.SuspectIDs, &suspects); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorResponse("Invalid suspect IDs", err))
+		}
+		casee.Suspects = suspects
 	}
 
 	// Save case with associations
@@ -247,27 +279,27 @@ type ChargeUpdatePayload struct {
 }
 
 type UpdateCasePayload struct {
-	Title        string                `json:"title"`
-	Description  string                `json:"description"`
-	Status       string                `json:"status"`
-	DateOpened   time.Time             `json:"date_opened"`
-	SuspectID    uint                  `json:"suspect_id"`
-	OfficerID    uint                  `json:"officer_id"`
-	PolicePostID uint                  `json:"police_post_id"`
-	Charges      []ChargeUpdatePayload `json:"charges"`    // <== new field
-	VictimIDs    []uint                `json:"victim_ids"` // NEW
+	Title        string    `json:"title"`
+	Description  string    `json:"description"`
+	Status       string    `json:"status"`
+	DateOpened   time.Time `json:"date_opened"`
+	OfficerID    uint      `json:"officer_id"`
+	PolicePostID uint      `json:"police_post_id"`
+	ChargeIDs    []uint    `json:"charge_ids"`
+	VictimIDs    []uint    `json:"victim_ids"` // NEW
+	SuspectIDs   []uint    `json:"suspect_ids"`
 }
 
 func (p UpdateCasePayload) IsEmpty() bool {
 	return p.Title == "" &&
 		p.Description == "" &&
 		p.Status == "" &&
-		p.SuspectID == 0 &&
 		p.OfficerID == 0 &&
 		p.PolicePostID == 0 &&
 		p.DateOpened.IsZero() &&
-		len(p.Charges) == 0 &&
-		len(p.VictimIDs) == 0
+		len(p.ChargeIDs) == 0 &&
+		len(p.VictimIDs) == 0 &&
+		len(p.SuspectIDs) == 0
 }
 
 // UpdateCase godoc
@@ -340,9 +372,9 @@ func (h *CaseController) UpdateCase(c *fiber.Ctx) error {
 	if !payload.DateOpened.IsZero() {
 		updates["date_opened"] = payload.DateOpened
 	}
-	if payload.SuspectID != 0 {
-		updates["suspect_id"] = payload.SuspectID
-	}
+	// if payload.SuspectID != 0 {
+	// 	updates["suspect_id"] = payload.SuspectID
+	// }
 	if payload.OfficerID != 0 {
 		updates["officer_id"] = payload.OfficerID
 	}
@@ -360,33 +392,25 @@ func (h *CaseController) UpdateCase(c *fiber.Ctx) error {
 	}
 
 	// Update charges if provided
-	if len(payload.Charges) > 0 {
-		// Delete existing charges
-		if err := tx.Where("case_id = ?", caseRecord.ID).Delete(&models.Charge{}).Error; err != nil {
+	if len(payload.ChargeIDs) > 0 {
+		var charges []models.Charge
+		if err := tx.Where("id IN ?", payload.ChargeIDs).Find(&charges).Error; err != nil {
 			tx.Rollback()
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"status":  "error",
-				"message": "Failed to delete existing charges",
+				"message": "Invalid charge IDs",
 				"data":    err.Error(),
 			})
 		}
 
-		// Insert new charges
-		for _, ch := range payload.Charges {
-			newCharge := models.Charge{
-				CaseID:      caseRecord.ID,
-				ChargeTitle: ch.ChargeTitle,
-				Description: ch.Description,
-				Severity:    ch.Severity,
-			}
-			if err := tx.Create(&newCharge).Error; err != nil {
-				tx.Rollback()
-				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-					"status":  "error",
-					"message": "Failed to create charge",
-					"data":    err.Error(),
-				})
-			}
+		// Replace existing associations with the new ones
+		if err := tx.Model(&caseRecord).Association("Charges").Replace(&charges); err != nil {
+			tx.Rollback()
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Failed to update case charges",
+				"data":    err.Error(),
+			})
 		}
 	}
 
@@ -407,6 +431,28 @@ func (h *CaseController) UpdateCase(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"status":  "error",
 				"message": "Failed to update case victims",
+				"data":    err.Error(),
+			})
+		}
+	}
+
+	if len(payload.SuspectIDs) > 0 {
+		var suspects []models.Suspect
+		if err := tx.Where("id IN ?", payload.SuspectIDs).Find(&suspects).Error; err != nil {
+			tx.Rollback()
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Invalid suspect IDs",
+				"data":    err.Error(),
+			})
+		}
+
+		// Replace victims association
+		if err := tx.Model(caseRecord).Association("Suspects").Replace(suspects); err != nil {
+			tx.Rollback()
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Failed to update case suspects",
 				"data":    err.Error(),
 			})
 		}

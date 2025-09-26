@@ -14,12 +14,12 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8080/api",
+    "host": "localhost:8085/api",
     "basePath": "/",
     "paths": {
-        "/case": {
+        "/arrest": {
             "post": {
-                "description": "Creates a new case entry in the system and returns the created record.",
+                "description": "Creates a new arrest entry in the system and returns the created record.",
                 "consumes": [
                     "application/json"
                 ],
@@ -27,23 +27,23 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Cases"
+                    "Arrests"
                 ],
-                "summary": "Create a new case record",
+                "summary": "Create a new arrest record",
                 "parameters": [
                     {
-                        "description": "Case data to create",
-                        "name": "case",
+                        "description": "Arrest data to create",
+                        "name": "Arrest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.CreateCasePayload"
+                            "$ref": "#/definitions/controllers.CreateArrestPayload"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Successfully created case record",
+                        "description": "Successfully created arrest record",
                         "schema": {
                             "$ref": "#/definitions/fiber.Map"
                         }
@@ -55,7 +55,208 @@
                         }
                     },
                     "500": {
-                        "description": "Server error when creating case",
+                        "description": "Server error when creating arrest",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/arrest/{id}": {
+            "get": {
+                "description": "Fetches a Arrest record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Arrests"
+                ],
+                "summary": "Retrieve a single Arrest record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Arrest ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Arrest retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Arrest not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when retrieving arrest",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates the details of a Arrest record based on the provided ID and request body.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Arrests"
+                ],
+                "summary": "Update an existing arrest record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Arrest ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Arrest data to update",
+                        "name": "Arrest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UpdateArrestPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Arrest updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input or empty request body",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Arrest not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when updating Arrest",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a Arrest record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Arrests"
+                ],
+                "summary": "Delete a Arrest record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Arrest ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Arrest deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Arrest not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when deleting Arrest",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/arrests": {
+            "get": {
+                "description": "Fetches all Arrest records with pagination support.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Arrests"
+                ],
+                "summary": "Retrieve a paginated list of arrests",
+                "responses": {
+                    "200": {
+                        "description": "Arrests retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve arrests",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/arrests/search": {
+            "get": {
+                "description": "Retrieves a paginated list of arrests based on search criteria.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Arrests"
+                ],
+                "summary": "Search for arrests with pagination",
+                "responses": {
+                    "200": {
+                        "description": "Arrests retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve Arrests",
                         "schema": {
                             "$ref": "#/definitions/fiber.Map"
                         }
@@ -1887,6 +2088,108 @@
                 }
             }
         },
+        "/role/{id}": {
+            "get": {
+                "description": "Fetches a role record based on the provided ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Retrieve a single role record by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Role ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Role not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when retrieving role",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/roles": {
+            "get": {
+                "description": "Fetches all role records with pagination support.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "roles"
+                ],
+                "summary": "Retrieve a paginated list of roles",
+                "responses": {
+                    "200": {
+                        "description": "Roles retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve roles",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/roles/search": {
+            "get": {
+                "description": "Retrieves a paginated list of roles based on search criteria.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Search for roles with pagination",
+                "responses": {
+                    "200": {
+                        "description": "Roles retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve roles",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
         "/suspect": {
             "post": {
                 "description": "Creates a new suspect entry with photo and fingerprints files.",
@@ -2294,6 +2597,52 @@
                 }
             }
         },
+        "/victim": {
+            "post": {
+                "description": "Creates a new victim entry in the system and returns the created record.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Victims"
+                ],
+                "summary": "Create a new victim record",
+                "parameters": [
+                    {
+                        "description": "Victim data to create",
+                        "name": "victim",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CreateVictimPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created victim record",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request due to invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error when creating victim",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
         "/victim/{id}": {
             "get": {
                 "description": "Fetches a victim record based on the provided ID.",
@@ -2464,50 +2813,6 @@
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "Creates a new victim entry in the system and returns the created record.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Victims"
-                ],
-                "summary": "Create a new victim record",
-                "parameters": [
-                    {
-                        "description": "Victim data to create",
-                        "name": "victim",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Victim"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Successfully created victim record",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request due to invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    },
-                    "500": {
-                        "description": "Server error when creating victim",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    }
-                }
             }
         },
         "/victims/search": {
@@ -2541,78 +2846,23 @@
         }
     },
     "definitions": {
-        "controllers.ChargePayload": {
+        "controllers.CreateArrestPayload": {
             "type": "object",
             "properties": {
-                "charge_title": {
+                "arrest_date": {
                     "type": "string"
                 },
-                "description": {
+                "location": {
                     "type": "string"
                 },
-                "severity": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.ChargeUpdatePayload": {
-            "type": "object",
-            "properties": {
-                "charge_title": {
+                "notes": {
                     "type": "string"
                 },
-                "description": {
-                    "type": "string"
-                },
-                "severity": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.CreateCasePayload": {
-            "type": "object",
-            "required": [
-                "case_number",
-                "title"
-            ],
-            "properties": {
-                "case_number": {
-                    "type": "string"
-                },
-                "charges": {
-                    "description": "Optional inline",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.ChargePayload"
-                    }
-                },
-                "date_opened": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "officer_id": {
-                    "type": "integer"
-                },
-                "police_post_id": {
-                    "type": "integer"
-                },
-                "status": {
+                "officer_name": {
                     "type": "string"
                 },
                 "suspect_id": {
                     "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "victim_ids": {
-                    "description": "For existing victims",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
                 }
             }
         },
@@ -2770,14 +3020,75 @@
                 }
             }
         },
+        "controllers.CreateVictimPayload": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "case_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "dob": {
+                    "description": "expect \"YYYY-MM-DD\"",
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "nin": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.UpdateArrestPayload": {
+            "type": "object",
+            "properties": {
+                "arrest_date": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "officer_name": {
+                    "type": "string"
+                },
+                "suspect_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "controllers.UpdateCasePayload": {
             "type": "object",
             "properties": {
-                "charges": {
-                    "description": "\u003c== new field",
+                "charge_ids": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controllers.ChargeUpdatePayload"
+                        "type": "integer"
                     }
                 },
                 "date_opened": {
@@ -2795,8 +3106,11 @@
                 "status": {
                     "type": "string"
                 },
-                "suspect_id": {
-                    "type": "integer"
+                "suspect_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "title": {
                     "type": "string"
@@ -3010,6 +3324,38 @@
                 }
             }
         },
+        "models.Arrest": {
+            "type": "object",
+            "properties": {
+                "arrest_date": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "officer_name": {
+                    "type": "string"
+                },
+                "suspect_id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Case": {
             "type": "object",
             "properties": {
@@ -3052,8 +3398,11 @@
                 "status": {
                     "type": "string"
                 },
-                "suspect_id": {
-                    "type": "integer"
+                "suspects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Suspect"
+                    }
                 },
                 "title": {
                     "type": "string"
@@ -3066,14 +3415,23 @@
                     "items": {
                         "$ref": "#/definitions/models.Victim"
                     }
+                },
+                "witnesses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Witness"
+                    }
                 }
             }
         },
         "models.Charge": {
             "type": "object",
             "properties": {
-                "case_id": {
-                    "type": "integer"
+                "cases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Case"
+                    }
                 },
                 "charge_title": {
                     "type": "string"
@@ -3208,7 +3566,142 @@
                 }
             }
         },
+        "models.Suspect": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "arrests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Arrest"
+                    }
+                },
+                "cases": {
+                    "description": "Relationships",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Case"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "dob": {
+                    "type": "string"
+                },
+                "fingerprints": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "middle_name": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "nin": {
+                    "type": "string"
+                },
+                "occupation": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "photo": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Victim": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "cases": {
+                    "description": "Relationships",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Case"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "dob": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "nin": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Witness": {
             "type": "object",
             "properties": {
                 "address": {

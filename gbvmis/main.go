@@ -17,16 +17,16 @@ import (
 	"github.com/gofiber/swagger" // swagger handler
 )
 
-//	@title			SGBV Police API
-//	@version		1.0
-//	@description	This is a gbvmis api
-//	@termsOfService	http://swagger.io/terms/
-//	@contact.name	API Support
-//	@contact.email	fiber@swagger.io
-//	@license.name	Apache 2.0
-//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
-//	@host			localhost:8080/api
-//	@BasePath		/
+// @title			SGBV Police API
+// @version		1.0
+// @description	This is a gbvmis api
+// @termsOfService	http://swagger.io/terms/
+// @contact.name	API Support
+// @contact.email	fiber@swagger.io
+// @license.name	Apache 2.0
+// @license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+// @host			localhost:8085/api
+// @BasePath		/
 func main() {
 	// Create a new Fiber instance
 	app := fiber.New(fiber.Config{

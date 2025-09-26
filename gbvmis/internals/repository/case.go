@@ -17,6 +17,8 @@ type CaseRepository interface {
 	DeleteByID(id string) error
 	SearchPaginatedCases(c *fiber.Ctx) (*utils.Pagination, []models.Case, error)
 	FindVictimsByIDs(ids []uint, victims *[]models.Victim) error
+	FindChargesByIDs(ids []uint, charges *[]models.Charge) error
+	FindSuspectsByIDs(ids []uint, suspects *[]models.Suspect) error
 	BeginTransaction() *gorm.DB
 }
 
@@ -35,7 +37,9 @@ func (r *CaseRepositoryImpl) CreateCase(casee *models.Case) error {
 }
 
 func (r *CaseRepositoryImpl) GetPaginatedCases(c *fiber.Ctx) (*utils.Pagination, []models.Case, error) {
-	pagination, cases, err := utils.Paginate(c, r.db.Preload("Charges").Preload("Victims"), models.Case{})
+	pagination, cases, err := utils.Paginate(c, r.db.Preload("Charges").
+		Preload("Victims").
+		Preload("Suspects"), models.Case{})
 	if err != nil {
 		return nil, nil, err
 	}
@@ -44,7 +48,9 @@ func (r *CaseRepositoryImpl) GetPaginatedCases(c *fiber.Ctx) (*utils.Pagination,
 
 func (r *CaseRepositoryImpl) GetCaseByID(id string) (models.Case, error) {
 	var casee models.Case
-	err := r.db.Preload("Charges").Preload("Victims").First(&casee, "id = ?", id).Error
+	err := r.db.Preload("Charges").
+		Preload("Victims").
+		Preload("Suspects").First(&casee, "id = ?", id).Error
 	return casee, err
 }
 
@@ -68,7 +74,9 @@ func (r *CaseRepositoryImpl) SearchPaginatedCases(c *fiber.Ctx) (*utils.Paginati
 	PolicePostID := c.Query("police_post_id")
 
 	// Start building the query
-	query := r.db.Preload("Charges").Preload("Victims").Model(&models.Charge{})
+	query := r.db.Preload("Charges").
+		Preload("Victims").
+		Preload("Suspects").Model(&models.Charge{})
 
 	// Apply filters based on provided parameters
 	if CaseNumber != "" {
@@ -97,6 +105,14 @@ func (r *CaseRepositoryImpl) SearchPaginatedCases(c *fiber.Ctx) (*utils.Paginati
 
 func (r *CaseRepositoryImpl) FindVictimsByIDs(ids []uint, victims *[]models.Victim) error {
 	return r.db.Where("id IN ?", ids).Find(victims).Error
+}
+
+func (r *CaseRepositoryImpl) FindChargesByIDs(ids []uint, charges *[]models.Charge) error {
+	return r.db.Where("id IN ?", ids).Find(charges).Error
+}
+
+func (r *CaseRepositoryImpl) FindSuspectsByIDs(ids []uint, suspects *[]models.Suspect) error {
+	return r.db.Where("id IN ?", ids).Find(suspects).Error
 }
 
 func (r *CaseRepositoryImpl) BeginTransaction() *gorm.DB {

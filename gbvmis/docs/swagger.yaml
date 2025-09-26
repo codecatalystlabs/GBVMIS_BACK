@@ -1,54 +1,17 @@
 basePath: /
 definitions:
-  controllers.ChargePayload:
+  controllers.CreateArrestPayload:
     properties:
-      charge_title:
+      arrest_date:
         type: string
-      description:
+      location:
         type: string
-      severity:
+      notes:
         type: string
-    type: object
-  controllers.ChargeUpdatePayload:
-    properties:
-      charge_title:
-        type: string
-      description:
-        type: string
-      severity:
-        type: string
-    type: object
-  controllers.CreateCasePayload:
-    properties:
-      case_number:
-        type: string
-      charges:
-        description: Optional inline
-        items:
-          $ref: '#/definitions/controllers.ChargePayload'
-        type: array
-      date_opened:
-        type: string
-      description:
-        type: string
-      officer_id:
-        type: integer
-      police_post_id:
-        type: integer
-      status:
+      officer_name:
         type: string
       suspect_id:
         type: integer
-      title:
-        type: string
-      victim_ids:
-        description: For existing victims
-        items:
-          type: integer
-        type: array
-    required:
-    - case_number
-    - title
     type: object
   controllers.CreateExaminationPayload:
     properties:
@@ -157,12 +120,52 @@ definitions:
     required:
     - name
     type: object
+  controllers.CreateVictimPayload:
+    properties:
+      address:
+        type: string
+      case_ids:
+        items:
+          type: integer
+        type: array
+      created_by:
+        type: string
+      dob:
+        description: expect "YYYY-MM-DD"
+        type: string
+      first_name:
+        type: string
+      gender:
+        type: string
+      last_name:
+        type: string
+      nationality:
+        type: string
+      nin:
+        type: string
+      phone_number:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  controllers.UpdateArrestPayload:
+    properties:
+      arrest_date:
+        type: string
+      location:
+        type: string
+      notes:
+        type: string
+      officer_name:
+        type: string
+      suspect_id:
+        type: integer
+    type: object
   controllers.UpdateCasePayload:
     properties:
-      charges:
-        description: <== new field
+      charge_ids:
         items:
-          $ref: '#/definitions/controllers.ChargeUpdatePayload'
+          type: integer
         type: array
       date_opened:
         type: string
@@ -174,8 +177,10 @@ definitions:
         type: integer
       status:
         type: string
-      suspect_id:
-        type: integer
+      suspect_ids:
+        items:
+          type: integer
+        type: array
       title:
         type: string
       victim_ids:
@@ -316,6 +321,27 @@ definitions:
         description: Valid is true if Time is not NULL
         type: boolean
     type: object
+  models.Arrest:
+    properties:
+      arrest_date:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      location:
+        type: string
+      notes:
+        type: string
+      officer_name:
+        type: string
+      suspect_id:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
   models.Case:
     properties:
       case_number:
@@ -344,8 +370,10 @@ definitions:
         $ref: '#/definitions/models.PolicePost'
       status:
         type: string
-      suspect_id:
-        type: integer
+      suspects:
+        items:
+          $ref: '#/definitions/models.Suspect'
+        type: array
       title:
         type: string
       updatedAt:
@@ -354,11 +382,17 @@ definitions:
         items:
           $ref: '#/definitions/models.Victim'
         type: array
+      witnesses:
+        items:
+          $ref: '#/definitions/models.Witness'
+        type: array
     type: object
   models.Charge:
     properties:
-      case_id:
-        type: integer
+      cases:
+        items:
+          $ref: '#/definitions/models.Case'
+        type: array
       charge_title:
         type: string
       createdAt:
@@ -447,6 +481,60 @@ definitions:
       updatedAt:
         type: string
     type: object
+  models.Suspect:
+    properties:
+      address:
+        type: string
+      arrests:
+        items:
+          $ref: '#/definitions/models.Arrest'
+        type: array
+      cases:
+        description: Relationships
+        items:
+          $ref: '#/definitions/models.Case'
+        type: array
+      created_by:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      dob:
+        type: string
+      fingerprints:
+        items:
+          type: integer
+        type: array
+      first_name:
+        type: string
+      gender:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      middle_name:
+        type: string
+      nationality:
+        type: string
+      nin:
+        type: string
+      occupation:
+        type: string
+      phone_number:
+        type: string
+      photo:
+        items:
+          type: integer
+        type: array
+      status:
+        type: string
+      updated_by:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   models.Victim:
     properties:
       address:
@@ -483,7 +571,43 @@ definitions:
       updatedAt:
         type: string
     type: object
-host: localhost:8080/api
+  models.Witness:
+    properties:
+      address:
+        type: string
+      cases:
+        description: Relationships
+        items:
+          $ref: '#/definitions/models.Case'
+        type: array
+      created_by:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      dob:
+        type: string
+      first_name:
+        type: string
+      gender:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      nationality:
+        type: string
+      nin:
+        type: string
+      phone_number:
+        type: string
+      updated_by:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+host: localhost:8085/api
 info:
   contact:
     email: fiber@swagger.io
@@ -496,24 +620,24 @@ info:
   title: SGBV Police API
   version: "1.0"
 paths:
-  /case:
+  /arrest:
     post:
       consumes:
       - application/json
-      description: Creates a new case entry in the system and returns the created
+      description: Creates a new arrest entry in the system and returns the created
         record.
       parameters:
-      - description: Case data to create
+      - description: Arrest data to create
         in: body
-        name: case
+        name: Arrest
         required: true
         schema:
-          $ref: '#/definitions/controllers.CreateCasePayload'
+          $ref: '#/definitions/controllers.CreateArrestPayload'
       produces:
       - application/json
       responses:
         "201":
-          description: Successfully created case record
+          description: Successfully created arrest record
           schema:
             $ref: '#/definitions/fiber.Map'
         "400":
@@ -521,12 +645,146 @@ paths:
           schema:
             $ref: '#/definitions/fiber.Map'
         "500":
-          description: Server error when creating case
+          description: Server error when creating arrest
           schema:
             $ref: '#/definitions/fiber.Map'
-      summary: Create a new case record
+      summary: Create a new arrest record
       tags:
-      - Cases
+      - Arrests
+  /arrest/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a Arrest record based on the provided ID.
+      parameters:
+      - description: Arrest ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Arrest deleted successfully
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "404":
+          description: Arrest not found
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Server error when deleting Arrest
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Delete a Arrest record by ID
+      tags:
+      - Arrests
+    get:
+      consumes:
+      - application/json
+      description: Fetches a Arrest record based on the provided ID.
+      parameters:
+      - description: Arrest ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Arrest retrieved successfully
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "404":
+          description: Arrest not found
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Server error when retrieving arrest
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Retrieve a single Arrest record by ID
+      tags:
+      - Arrests
+    put:
+      consumes:
+      - application/json
+      description: Updates the details of a Arrest record based on the provided ID
+        and request body.
+      parameters:
+      - description: Arrest ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Arrest data to update
+        in: body
+        name: Arrest
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UpdateArrestPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Arrest updated successfully
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "400":
+          description: Invalid input or empty request body
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "404":
+          description: Arrest not found
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Server error when updating Arrest
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Update an existing arrest record by ID
+      tags:
+      - Arrests
+  /arrests:
+    get:
+      consumes:
+      - application/json
+      description: Fetches all Arrest records with pagination support.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Arrests retrieved successfully
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Failed to retrieve arrests
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Retrieve a paginated list of arrests
+      tags:
+      - Arrests
+  /arrests/search:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a paginated list of arrests based on search criteria.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Arrests retrieved successfully
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Failed to retrieve Arrests
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Search for arrests with pagination
+      tags:
+      - Arrests
   /case/{id}:
     delete:
       consumes:
@@ -1745,6 +2003,73 @@ paths:
       summary: Refresh JWT tokens
       tags:
       - Auth
+  /role/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Fetches a role record based on the provided ID.
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role retrieved successfully
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "404":
+          description: Role not found
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Server error when retrieving role
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Retrieve a single role record by ID
+      tags:
+      - Roles
+  /roles:
+    get:
+      consumes:
+      - application/json
+      description: Fetches all role records with pagination support.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Roles retrieved successfully
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Failed to retrieve roles
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Retrieve a paginated list of roles
+      tags:
+      - roles
+  /roles/search:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a paginated list of roles based on search criteria.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Roles retrieved successfully
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Failed to retrieve roles
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Search for roles with pagination
+      tags:
+      - Roles
   /suspect:
     post:
       consumes:
@@ -2017,6 +2342,37 @@ paths:
       summary: Search for suspects with pagination
       tags:
       - Suspects
+  /victim:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new victim entry in the system and returns the created
+        record.
+      parameters:
+      - description: Victim data to create
+        in: body
+        name: victim
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CreateVictimPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created victim record
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "400":
+          description: Bad request due to invalid input
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Server error when creating victim
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Create a new victim record
+      tags:
+      - Victims
   /victim/{id}:
     delete:
       consumes:
@@ -2130,36 +2486,6 @@ paths:
           schema:
             $ref: '#/definitions/fiber.Map'
       summary: Retrieve a paginated list of victims
-      tags:
-      - Victims
-    post:
-      consumes:
-      - application/json
-      description: Creates a new victim entry in the system and returns the created
-        record.
-      parameters:
-      - description: Victim data to create
-        in: body
-        name: victim
-        required: true
-        schema:
-          $ref: '#/definitions/models.Victim'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Successfully created victim record
-          schema:
-            $ref: '#/definitions/fiber.Map'
-        "400":
-          description: Bad request due to invalid input
-          schema:
-            $ref: '#/definitions/fiber.Map'
-        "500":
-          description: Server error when creating victim
-          schema:
-            $ref: '#/definitions/fiber.Map'
-      summary: Create a new victim record
       tags:
       - Victims
   /victims/search:
