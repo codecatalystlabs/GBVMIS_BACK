@@ -9,26 +9,47 @@ import (
 
 type Symptom struct {
 	gorm.Model
-	Name   string   `json:"name" gorm:"unique;not null"`
-	People []Person `gorm:"many2many:person_symptoms;" json:"people,omitempty"`
+	Name           string          `json:"name" gorm:"unique;not null"`
+	PersonSymptoms []PersonSymptom `json:"person_symptoms,omitempty"`
+}
+
+type PersonSymptom struct {
+	gorm.Model
+	PersonID  uint
+	SymptomID uint
+	State     string `json:"state"` // e.g. "mild", "severe", "resolved"
+
+	Person  Person
+	Symptom Symptom
 }
 
 type PostMortemSummary struct {
 	gorm.Model
-	Description string   `json:"description"`
-	People      []Person `gorm:"many2many:postmortem_people;" json:"people,omitempty"`
+	Description     string          `json:"description"`
+	PeopleSummaries []PersonSummary `json:"people_summaries,omitempty"`
+}
+
+type PersonSummary struct {
+	gorm.Model
+	PersonID            uint
+	PostMortemSummaryID uint
+	State               string `json:"state"` // e.g. "mild", "severe", "resolved"
+
+	Person            Person
+	PostMortemSummary PostMortemSummary
 }
 
 type Person struct {
 	gorm.Model
-	Name           string                      `json:"name"`
-	Occupation     string                      `json:"occupation"`
-	Habits         datatypes.JSONSlice[string] `json:"habits" gorm:"type:json"`
-	ApproximateAge int                         `json:"approximate_age"`
-	Gender         string                      `json:"gender"`
-	Category       string                      `json:"category"` // "sick" or "deceased"
-	Symptoms       []Symptom                   `gorm:"many2many:person_symptoms;" json:"symptoms,omitempty"`
-	Summaries      []PostMortemSummary         `gorm:"many2many:postmortem_people;" json:"summaries,omitempty"`
+	Name                 string                      `json:"name"`
+	Occupation           string                      `json:"occupation"`
+	Habits               datatypes.JSONSlice[string] `json:"habits" gorm:"type:json"`
+	ApproximateAge       int                         `json:"approximate_age"`
+	Gender               string                      `json:"gender"`
+	Category             string                      `json:"category"` // "sick" or "deceased"
+	PersonSymptoms       []PersonSymptom             `json:"person_symptoms,omitempty"`
+	Summaries            []PersonSummary             `json:"summaries,omitempty"`
+	DateHourOfPostMortem time.Time                   `gorm:"type:date" json:"date_hour_of_post_mortem"`
 }
 
 type PoliceReport struct {

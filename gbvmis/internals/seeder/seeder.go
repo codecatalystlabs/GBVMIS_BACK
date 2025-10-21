@@ -139,4 +139,69 @@ func SeedDatabase(db *gorm.DB) {
 		log.Println("Charges table already seeded, skipping...")
 	}
 
+	symptoms := []models.Symptom{
+		{
+			Name: "State of the mouth",
+		},
+		{
+			Name: "State of the pupils",
+		},
+		{
+			Name: "Vomiting",
+		},
+		{
+			Name: "Diarrhea",
+		},
+		{
+			Name: "Cramp",
+		},
+		{
+			Name: "Delirium",
+		},
+		{
+			Name: "Sleep or coma",
+		},
+	}
+
+	// Check if the symptoms table already has data
+	var sympCount int64
+	db.Model(&models.Symptom{}).Count(&sympCount)
+	if sympCount == 0 {
+		if err := db.Create(&symptoms).Error; err != nil {
+			log.Fatalf("Failed to seed symptoms: %v", err)
+		} else {
+			log.Println("symptoms data seeded successfully")
+		}
+	} else {
+		log.Println("symptoms table already seeded, skipping...")
+	}
+
+	postMortemSummaries := []models.PostMortemSummary{
+		{
+			Description: "Cause of death",
+		},
+		{
+			Description: "Signs of any disease(state organs affected)",
+		},
+		{
+			Description: "Signs of poisoning in organs",
+		},
+		{
+			Description: "Indications of type of poison suspected",
+		},
+	}
+
+	// Check if the postMortemSummaries table already has data
+	var pmsCount int64
+	db.Model(&models.PostMortemSummary{}).Count(&pmsCount)
+	if pmsCount == 0 {
+		if err := db.Create(&postMortemSummaries).Error; err != nil {
+			log.Fatalf("Failed to seed post_mortem_summaries: %v", err)
+		} else {
+			log.Println("postmortem summaries data seeded successfully")
+		}
+	} else {
+		log.Println("post_mortem_summaries table already seeded, skipping...")
+	}
+
 }

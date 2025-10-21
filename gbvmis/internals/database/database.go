@@ -78,7 +78,16 @@ func (d *DBInstance) Migrate() {
 		&models.PolicePost{},
 		&models.PoliceOfficer{},
 		&models.Role{},
+		&models.Person{},
+		&models.Symptom{},
+		&models.PostMortemSummary{},
+		&models.Witness{},
+		&models.PoliceReport{},
+		&models.ToxicologyForensicReport{},
+		&models.PersonSymptom{},
+		&models.PersonSummary{},
 	)
+	log.Println("Migrations completed")
 }
 
 // Seed populates the database with initial data
