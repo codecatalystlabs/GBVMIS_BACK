@@ -32,5 +32,7 @@ gbvmis
 Dockerfile
 .dockerignore
 docker-compose.yaml
+docker-compose.yml
+Makefile
 .DS_Store
 .vscode/*
