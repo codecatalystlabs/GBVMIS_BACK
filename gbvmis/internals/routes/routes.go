@@ -4,6 +4,7 @@ import (
 	"gbvmis/internals/controllers"
 	"gbvmis/internals/middleware"
 	"gbvmis/internals/repository"
+	"gbvmis/internals/service"
 	"gbvmis/internals/utils"
 
 	"github.com/gofiber/fiber/v2"
@@ -123,6 +124,17 @@ func SetupRoute(app *fiber.App, db *gorm.DB) {
 	policeRoles.Get("/:id", policeRolesController.GetSinglePoliceRole)
 	policeRoles.Put("/:id", policeRolesController.UpdatePoliceRole)
 	policeRoles.Delete("/:id", policeRolesController.DeletePoliceRole)
+
+	toxicologyRepo := repository.NewToxicologyReportRepository(db)
+	toxicologyService := service.NewToxicologyService(toxicologyRepo)
+	toxicologyController := controllers.NewToxicologyForensicController(toxicologyService)
+	protected.Get("/toxicology-reports", toxicologyController.GetAll)
+	protected.Get("/toxicology-reports-pag", toxicologyController.GetPaginatedReports)
+	toxicology := protected.Group("/toxicology-report")
+	toxicology.Post("/", toxicologyController.Create)
+	toxicology.Get("/:id", toxicologyController.GetByID)
+	toxicology.Put("/:id", toxicologyController.Update)
+	toxicology.Delete("/:id", toxicologyController.Delete)
 
 	NotFoundRoute(app)
 }

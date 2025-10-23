@@ -54,9 +54,13 @@ type Person struct {
 
 type PoliceReport struct {
 	gorm.Model
-	OfficerID uint          `json:"officer_id"`
-	Officer   PoliceOfficer `gorm:"foreignKey:OfficerID"`
-	Date      time.Time     `gorm:"type:date" json:"date"`
+	OfficerID             uint          `json:"officer_id"`
+	Officer               PoliceOfficer `gorm:"foreignKey:OfficerID"`
+	Date                  time.Time     `gorm:"type:date" json:"date"`
+	IsPersonPoisoned      bool          `json:"is_person_poisoned"`
+	IsSuicideOrAccident   bool          `json:"is_suicide_or_accident"`
+	IsDeceasedOnTreatment bool          `json:"is_deceased_on_treatment"`
+	TreatmentDetails      string        `json:"treatment_details"`
 }
 
 type ToxicologyForensicReport struct {
